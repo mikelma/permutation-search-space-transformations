@@ -3,3 +3,4 @@ QAP.ccp
 QAP.h
 PFSP.ccp
 PFSP.h
+*.pyc
