@@ -1,2 +1,2 @@
-from QAP import QAP
-from PFSP import PFSP
+from problems.QAP import QAP
+from problems.PFSP import PFSP
