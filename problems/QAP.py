@@ -9,7 +9,7 @@ class QAP():
 
         Args:
             size (int): Size of the problem, number of jobs
-            instances_dir (str): Default: '../instances/QAP'. Directory where QAP 
+            instances_dir (str): Default: 'instances/QAP'. Directory where QAP 
                                  instaces are located
         """
         self.size = size
