@@ -1,5 +1,6 @@
 __pycache__
 c/
+old/
 *.pyc
 *.swp
 *.png
