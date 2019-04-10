@@ -3,7 +3,7 @@ import optimizers
 import permu_utils as putils
 import numpy as np
 
-PERMU_LENGTH = 9
+PERMU_LENGTH = 12
 POP_SIZE = PERMU_LENGTH*100
 SURV_RATE = .5
 ITERS = 100
@@ -50,8 +50,8 @@ for iter_ in range(ITERS):
     p = umda.learn_distribution(surv)
 
     # Sample new solutions
-    # new = umda.sample_population(p, n_survs, pop=pop, timeout=TIMEOUT, quit_in_timeout=True)
-    new = umda.sample_population(p, n_survs, pop=np.array([]), timeout=TIMEOUT, quit_in_timeout=True)
+    # new = umda.sample_population_ad_hoc(p, n_survs, pop=pop, timeout=TIMEOUT, quit_in_timeout=True)
+    new = umda.sample_population_ad_hoc(p, n_survs, pop=np.array([]), timeout=TIMEOUT, quit_in_timeout=True)
 
     # Create the new population 
     fitness = np.hstack((surv_f, [None]*n_survs)) 
