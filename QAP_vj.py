@@ -1,24 +1,18 @@
 import problems
-import optimizers
+from optimizers import UMDA 
 import permu_utils as putils
 import numpy as np
 import matplotlib.pyplot as plt 
 
-def debug(m, f):
-    for i in range(len(f)):
-        print(m[i], '  ', f[i])
-
-# PERMU_LENGTH = 5
-PERMU_LENGTH = 9
-# POP_SIZE = PERMU_LENGTH*10
-POP_SIZE = PERMU_LENGTH*100
+PERMU_LENGTH = 7
+POP_SIZE = PERMU_LENGTH*150
 SURV_RATE = .5
 ITERS = 70 
-TIMEOUT = 10*1000
-INSTANCE_NAME = 'qap9_01'
-LR = .1
+TIMEOUT = 3*1000
+INSTANCE_NAME = 'qap7_01'
+LR = .15
 
-umda = optimizers.UMDA()
+umda = UMDA()
 qap = problems.QAP(PERMU_LENGTH)
 
 dist, flow = qap.load_instance(INSTANCE_NAME)
@@ -31,13 +25,13 @@ n_surv = int(POP_SIZE*SURV_RATE) # Number of survivor solutions
 # Initialization of the prob. distribution 
 p_ = np.zeros((PERMU_LENGTH-1, PERMU_LENGTH-1)) 
 
+log_min = []
+log_avg = []
+
 # Evaluate for the initial population
 fitness = np.empty(POP_SIZE)
 for indx in range(POP_SIZE):
     fitness[indx] = qap.evaluate(pop[indx], dist, flow)
-
-log_min = []
-log_avg = []
 
 for iter_ in range(ITERS):
 
@@ -56,11 +50,8 @@ for iter_ in range(ITERS):
         pop = np.delete(pop, bests_indx, axis=0)
         fitness = np.delete(fitness, bests_indx)
     
-    # print('surv:', '\n', surv)
-
     # Transform survivor permus to vj
     surv_vj = putils.transform(surv, putils.permu2vj)
-    # print('surv vj:','\n', surv_vj)
 
     # Learn a probability distribution from survivors
     p = umda.learn_distribution(surv_vj)
@@ -70,32 +61,37 @@ for iter_ in range(ITERS):
         p = LR*p_ + (1-LR)*p
         p_ = p # Pi-1 = Pi
     
-    # print('p: ', '\n', p)
-
     # Sample new solutions
-    # new_vj = umda.sample_population(p, n_surv, pop=np.array([]), 
-    #                              timeout=TIMEOUT, quit_in_timeout=True)
-    new_vj = umda.sample_population(p, n_surv, pop=surv_vj, 
-                                 timeout=TIMEOUT, quit_in_timeout=True)
-    # print('new vj: ', '\n', new_vj)
+    try:
+        new_vj = umda.sample_population(p, n_surv, 
+                                        permutation=False,
+                                        pop=np.array([]), 
+                                        timeout=TIMEOUT)
+    except Exception as e:
+        print(e)
+        plt.plot(range(iter_+1), log_avg, label='Mean')
+        plt.plot(range(iter_+1), log_min, label='Best')
+        plt.title('Vj'+ ' best: {:0.2f}'.format(min(fitness)))
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+        quit()
 
     # Transform population of vj to permus
     new = putils.transform(new_vj, putils.vj2permu)    
-    # print('new: ', '\n', new)
 
     # Evaluate the sampled solutions
     new_f = np.empty(n_surv) # Fitness of  
     for i in range(n_surv):
         new_f[i] = qap.evaluate(new[i], dist, flow)
 
-    # print('Debug:')
-    # debug(new, new_f)
-
     fitness = np.hstack((surv_f, new_f)) 
     pop = np.vstack((surv, new))  
-    # print('pop:', '\n',  pop)
 
 plt.plot(range(ITERS), log_avg, label='Mean')
 plt.plot(range(ITERS), log_min, label='Best')
 plt.legend()
+plt.title('Vj ' + INSTANCE_NAME 
+          + ' best {:0.2f}'.format(min(fitness)))
+plt.grid(True)
 plt.show()
