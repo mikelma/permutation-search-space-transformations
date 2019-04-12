@@ -3,6 +3,10 @@ import permu_utils as putils
 import math
 import datetime
 
+class TimeoutError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
 class UMDA():
 
     def __init__(self):
@@ -27,90 +31,91 @@ class UMDA():
 
         return freq
 
-    def sample_population_ad_hoc(self, p, n, 
-                          pop=np.array([]),
-                          timeout=None, 
-                          quit_in_timeout=False):
-        '''Given a probability matrix of size mxm, sample n permutations
-        of length m.
+    # def sample_population_ad_hoc(self, p, n, 
+    #                       pop=np.array([]),
+    #                       timeout=None, 
+    #                       quit_in_timeout=False):
+    #     '''Given a probability matrix of size mxm, sample n permutations
+    #     of length m.
 
-        Args: 
-            p (ndarray): probability matrix.
-            n (int): number of permutations to sample.
-            timeout (int or None): Default: None. Enable timeouti, in milliseconds.  
-            quit_in_timeout (bool): Default: False. Exit the program if timeout occurs.
-                                    Else, stop sampling and return obtained results.
-        
-        Returns:
-            ndarray: matrix with the sampled permutations
+    #     Args: 
+    #         p (ndarray): probability matrix.
+    #         n (int): number of permutations to sample.
+    #         timeout (int or None): Default: None. Enable timeouti, in milliseconds.  
+    #         quit_in_timeout (bool): Default: False. Exit the program if timeout occurs.
+    #                                 Else, stop sampling and return obtained results.
+    #     
+    #     Returns:
+    #         ndarray: matrix with the sampled permutations
 
-        '''
-        samples = set()
-        # print('p: ', p) # debug
-        size = p.shape[0] # Size of permutations
-        identity = np.array(range(size))
+    #     '''
+    #     samples = set()
+    #     # print('p: ', p) # debug
+    #     size = p.shape[0] # Size of permutations
+    #     identity = np.array(range(size))
 
-        assert n <= math.factorial(size), 'Number of permutations to sample is too large.'
+    #     assert n <= math.factorial(size), 'Number of permutations to sample is too large.'
 
-        start = datetime.datetime.now()
+    #     start = datetime.datetime.now()
 
-        while len(samples) < n:
-            delta_t = datetime.datetime.now() - start
-            if type(timeout) == int and int(delta_t.total_seconds() * 1000) >= timeout:
-                print('Warning: Timeout passed when sampling permutations.')
-                if quit_in_timeout:
-                    quit() 
-                else:
-                    break
-            # Generate permu
-            permu = []
-            for j in range(size): # For each position
-                # Probability for elements in the j's position 
-                p_ = np.delete(p[j], permu, axis=0) 
-                available = np.delete(identity, permu) 
-                try:
-                    if sum(p_) == 0: 
-                        rand = 0 
-                    else:
-                        rand = np.random.uniform(0, sum(p_))
-                except Exception as e:
-                    print(e, '\n', 'Program state before error:')
-                    print('p_: ', p_, ' available: ', available, '  rand: ', rand) #debug
-                    quit()
-                i = 0
-                s = 0 # sum
-                while s < rand:
-                    s += p_[i] 
-                    if s < rand:
-                        i += 1
-                permu.append(available[i])
-            i = 0 
-            repeated = False
-            while not repeated and i < pop.shape[0]: 
-                repeated = tuple(pop[i]) == permu
-                i += 1
-            if not repeated: 
-                samples.add(tuple(permu))
+    #     while len(samples) < n:
+    #         delta_t = datetime.datetime.now() - start
+    #         if type(timeout) == int and int(delta_t.total_seconds() * 1000) >= timeout:
+    #             print('Warning: Timeout passed when sampling permutations.')
+    #             if quit_in_timeout:
+    #                 quit() 
+    #             else:
+    #                 return None
+    #                 # break
+    #         # Generate permu
+    #         permu = []
+    #         for j in range(size): # For each position
+    #             # Probability for elements in the j's position 
+    #             p_ = np.delete(p[j], permu, axis=0) 
+    #             available = np.delete(identity, permu) 
+    #             try:
+    #                 if sum(p_) == 0: 
+    #                     rand = 0 
+    #                 else:
+    #                     rand = np.random.uniform(0, sum(p_))
+    #             except Exception as e:
+    #                 print(e, '\n', 'Program state before error:')
+    #                 print('p_: ', p_, ' available: ', available, '  rand: ', rand) #debug
+    #                 quit()
+    #             i = 0
+    #             s = 0 # sum
+    #             while s < rand:
+    #                 s += p_[i] 
+    #                 if s < rand:
+    #                     i += 1
+    #             permu.append(available[i])
+    #         i = 0 
+    #         repeated = False
+    #         while not repeated and i < pop.shape[0]: 
+    #             repeated = tuple(pop[i]) == permu
+    #             i += 1
+    #         if not repeated: 
+    #             samples.add(tuple(permu))
 
-        return  putils.set2np(samples, size) 
+    #     return  putils.set2np(samples, size) 
 
     def sample_population(self, p, n, 
+                          permutation=True,
                           pop=np.array([]),
-                          timeout=None, 
-                          quit_in_timeout=False):
+                          timeout=None):
         '''Given a probability matrix of size mxm, sample n solutions 
         of length m.
 
         Args: 
             p (ndarray): probability matrix.
             n (int): number of samples.
-            pop (ndarray): Default: empty array. Individuals from pop matrix 
-                           are not going to be repeated in the sampled matrix.
-                           Warning, the larger the size of pop, sampling will 
-                           be more time-consuming.
-            timeout (int or None): Default: None. Enable timeouti, in milliseconds.  
-            quit_in_timeout (bool): Default: False. Exit the program if timeout occurs.
-                                    Else, stop sampling and return obtained results.
+            permutation (bool): If true, samples are going to be permutations.
+                                Default: True.
+            pop (ndarray): Individuals from pop matrix are not going to be 
+                           repeated in the sampled matrix. Warning, the larger 
+                           the size of pop, sampling will be more time-consuming. 
+                           Default: empty array. 
+            timeout (int or None): Enable timeouti, in milliseconds. Default: None.
         
         Returns:
             ndarray: sampled matrix. 
@@ -124,20 +129,20 @@ class UMDA():
         start = datetime.datetime.now()
 
         while len(samples) < n:
+            ## Watch for timeouts
             delta_t = datetime.datetime.now() - start
             if type(timeout) == int and int(delta_t.total_seconds() * 1000) >= timeout:
-                print('Warning: Timeout passed when sampling.')
-                if quit_in_timeout:
-                    quit() 
-                else:
-                    break
+                raise TimeoutError('Error: Timeout passed when sampling new solutions.')
+
             # Generate permu
             permu = []
             for j in range(size): # For each position
                 # Probability for elements in the j's position 
-                # p_ = np.delete(p[j], permu, axis=0) 
-                p_ = p[j]
-                # available = np.delete(identity, permu) 
+                if permutation:
+                    p_ = np.delete(p[j], permu, axis=0) 
+                    available = np.delete(identity, permu) 
+                else:
+                    p_ = p[j]
                 try:
                     if sum(p_) == 0: 
                         rand = 0 
@@ -153,8 +158,11 @@ class UMDA():
                     s += p_[i] 
                     if s < rand:
                         i += 1
-                # permu.append(available[i])
-                permu.append(identity[i])
+
+                if permutation:
+                    permu.append(available[i])
+                else:
+                    permu.append(identity[i])
             i = 0 
             repeated = False
             while not repeated and i < pop.shape[0]: 
