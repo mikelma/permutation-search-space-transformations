@@ -1,2 +1,6 @@
-# permutation-search-space-transformations
-Permutation search space transformations
+# Permutation search space transformations
+
+## Dependencies
+- Python3
+- Matplotlib
+- Numpy
