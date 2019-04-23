@@ -1,6 +1,10 @@
 import numpy as np
 import os
 
+class InstanceSizeError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
 class QAP():
 
     def __init__(self, size,
@@ -12,10 +16,8 @@ class QAP():
             instances_dir (str): Default: 'instances/QAP'. Directory where QAP 
                                  instaces are located
         """
-        self.size = size
-
-        # Chance current working directory to the file where instances are
-        os.chdir(instances_dir)
+        self.instances_dir = instances_dir
+        self.wdir = os.getcwd()
 
 
     def load_instance(self, instance_name):
@@ -26,66 +28,96 @@ class QAP():
        
         Returns:
             tuple: (distance_matrix, flow_matrix).
+
+        Raises:
+            InstanceSizeError: Error while formatting the string from the instance 
+                to a numpy array. The array has not the desired size.
         """
+        # Change the working dir to where instances are
+        os.chdir(self.instances_dir)
+
         f = open(instance_name, 'r')
         lines = f.readlines()
         f.close()
-        size = int(lines[0].strip('\n')) 
 
-        # Distance matrix 
-        d = lines[1].split(' ')  
-        distances = np.empty((size, size))
-        a = 0
-        for i in range(size):
-            for j in range(size):
-                distances[i][j] = float(d[a])
-                a += 1
+        size = int(lines[0].strip('\n').strip(' ')) 
+        del lines[0]
 
-        # Flow matrix 
-        f = lines[2].split(' ')  
-        flow = np.empty((size, size))
-        a = 0
-        for i in range(size):
-            for j in range(size):
-                flow[i][j] = float(d[a])
-                a += 1
+        def _format(str_, size): 
+
+            matrix = np.empty((size, size), dtype=np.int)
+            for i in range(size):
+
+                str_ = lines[i].split(' ')
+
+                # Clean row, str -> int
+                row = []
+                for item in str_:
+                    try:
+                        row.append(int(item.strip('\n')))
+                    except:
+                        pass
+
+                # Check for size errors
+                if len(row) != size:
+                    raise InstanceSizeError(
+                        'The instance matrix created from '
+                        + instance_name 
+                        + ', has not the correct size '
+                        + str(size) + ', instead its size is '
+                        + str(len(row)) + '.')
+
+                # Add data to the matrix 
+                for j in range(size):
+                    matrix[i][j] = int(row[j])
+
+            return matrix
+
+        distances = _format(lines, size)
+
+        lines = lines[size:]
+        
+        flow = _format(lines, size)
+
+        # return to the original working dir 
+        os.chdir(self.wdir)
 
         return distances, flow
         
 
-    def generate_instance(self, instance_name,
-                          min_distance, max_distance,
-                          min_flow, max_flow):
-        """Generates a file containing a QAP instance.
-        The distance and flow matrix are randomly generated
-        with the specified ranges. Matrix order: distance, flow.
+    # def generate_instance(self, instance_name,
+    #                       min_distance, max_distance,
+    #                       min_flow, max_flow):
+    #     """Generates a file containing a QAP instance.
+    #     The distance and flow matrix are randomly generated
+    #     with the specified ranges. Matrix order: distance, flow.
 
-        Args:
-            instance_name (str): The name of the output file.
-            min_distance (float): Lower range of the distance matrix.
-            max_distance (float): Upper range of the distance matrix.
-            min_flow (float): Lower range of the flow matrix.
-            max_flow (float): Upper range of the flow matrix.
-        """
-        distance_matrix = np.random.uniform(min_distance, max_distance,
-                                            size=(self.size, self.size))
-        flow_matrix = np.random.uniform(min_flow, max_flow,
-                                        size=(self.size, self.size))
+    #     Args:
+    #         instance_name (str): The name of the output file.
+    #         min_distance (float): Lower range of the distance matrix.
+    #         max_distance (float): Upper range of the distance matrix.
+    #         min_flow (float): Lower range of the flow matrix.
+    #         max_flow (float): Upper range of the flow matrix.
+    #     """
+    #     distance_matrix = np.random.uniform(min_distance, max_distance,
+    #                                         size=(size, size))
+    #     flow_matrix = np.random.uniform(min_flow, max_flow,
+    #                                     size=(size, size))
 
-        str_ = str(self.size) + '\n'
-        for i in range(self.size):
-            for j in range(self.size):
-                str_ += str(distance_matrix[i][j]) + ' '
-        str_ = str_[:-1]
-        str_ += '\n'
-        for i in range(self.size):
-            for j in range(self.size):
-                str_ += str(flow_matrix[i][j]) + ' '
-        str_ = str_[:-1]
+    #     str_ = str(size) + '\n'
+    #     for i in range(size):
+    #         for j in range(size):
+    #             str_ += str(distance_matrix[i][j]) + ' '
+    #     str_ = str_[:-1]
+    #     str_ += '\n'
+    #     for i in range(size):
+    #         for j in range(size):
+    #             str_ += str(flow_matrix[i][j]) + ' '
+    #     str_ = str_[:-1]
 
-        f = open(instance_name, 'w')
-        f.write(str_)
-        f.close()
+    #     f = open(instance_name, 'w')
+    #     f.write(str_)
+    #     f.close()
 
     def evaluate(self, perm, distance_matrix, flow_matrix):
         """Evaluates the given permutation for the QAP problem.
@@ -99,9 +131,10 @@ class QAP():
             float: fitness value of the given permutation.
         """ 
         fitness = 0
+        size = len(perm)
 
-        for i in range(self.size):
-            for j in range(self.size):
+        for i in range(size):
+            for j in range(size):
 
                 factA = perm[i]
                 factB = perm[j]
