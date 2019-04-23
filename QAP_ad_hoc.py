@@ -13,7 +13,7 @@ INSTANCE_NAME = 'tai20b.dat'
 LR = None # Learning rate 
 
 umda = UMDA()
-qap = problems.QAP(PERMU_LENGTH)
+qap = problems.QAP()
 
 dist, flow = qap.load_instance(INSTANCE_NAME)
 

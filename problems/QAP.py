@@ -7,12 +7,10 @@ class InstanceSizeError(Exception):
 
 class QAP():
 
-    def __init__(self, size,
-                 instances_dir='instances/QAP'):
+    def __init__(self, instances_dir='instances/QAP'):
         """ QAP problem initializer.
 
         Args:
-            size (int): Size of the problem, number of jobs
             instances_dir (str): Default: 'instances/QAP'. Directory where QAP 
                                  instaces are located
         """
