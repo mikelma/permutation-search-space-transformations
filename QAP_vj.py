@@ -4,12 +4,12 @@ import permu_utils as putils
 import numpy as np
 import matplotlib.pyplot as plt 
 
-PERMU_LENGTH = 12
+PERMU_LENGTH = 20
 POP_SIZE = PERMU_LENGTH*10
 SURV_RATE = .5
 ITERS = 150 
 TIMEOUT = 3*1000
-INSTANCE_NAME = 'qap12_01'
+INSTANCE_NAME = 'tai20b.dat'
 LR = None
 
 umda = UMDA()
