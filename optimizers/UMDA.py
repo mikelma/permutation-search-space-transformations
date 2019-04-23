@@ -98,7 +98,7 @@ class UMDA():
     #             samples.add(tuple(permu))
 
     #     return  putils.set2np(samples, size) 
-
+    @profile
     def sample_population(self, p, n, 
                           permutation=True,
                           pop=np.array([]),
@@ -143,15 +143,12 @@ class UMDA():
                     available = np.delete(identity, permu) 
                 else:
                     p_ = p[j]
-                try:
-                    if sum(p_) == 0: 
-                        rand = 0 
-                    else:
-                        rand = np.random.uniform(0, sum(p_))
-                except Exception as e:
-                    print(e, '\n', 'Program state before error:')
-                    print('p_: ', p_, ' available: ', available, '  rand: ', rand) #debug
-                    quit()
+
+                if sum(p_) == 0: 
+                    rand = 0 
+                else:
+                    rand = np.random.uniform(0, sum(p_))
+
                 i = 0
                 s = 0 # sum
                 while s < rand:
@@ -163,6 +160,7 @@ class UMDA():
                     permu.append(available[i])
                 else:
                     permu.append(identity[i])
+            
             i = 0 
             repeated = False
             while not repeated and i < pop.shape[0]: 
