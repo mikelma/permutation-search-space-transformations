@@ -4,13 +4,13 @@ from optimizers import UMDA
 import numpy as np
 import matplotlib.pyplot as plt
 
-PERMU_LENGTH = 7
-POP_SIZE = PERMU_LENGTH*150
+PERMU_LENGTH = 12
+POP_SIZE = PERMU_LENGTH*10
 SURV_RATE = .5
-ITERS = 70
+ITERS = 150
 TIMEOUT = 3*1000
-INSTANCE_NAME = 'qap7_01'
-LR = .15 # Learning rate 
+INSTANCE_NAME = 'qap12_01'
+LR = None # Learning rate 
 
 umda = UMDA()
 qap = problems.QAP(PERMU_LENGTH)
@@ -71,7 +71,7 @@ for iter_ in range(ITERS):
         plt.plot(range(iter_+1), log_avg, label='Mean')
         plt.plot(range(iter_+1), log_min, label='Best')
         plt.title('Ad-hoc ' + INSTANCE_NAME 
-                  + ' best: {:0.2f}'.format(min(fitness)))
+                  + ' best: {:0.2f}'.format(min(log_min)))
         plt.legend()
         plt.grid(True)
         plt.show()
@@ -90,7 +90,6 @@ plt.plot(range(ITERS), log_avg, label='Mean')
 plt.plot(range(ITERS), log_min, label='Best')
 plt.legend()
 plt.title('Ad-hoc ' + INSTANCE_NAME 
-          + ' best: {:0.2f}'.format(min(fitness)))
+          + ' best: {:0.2f}'.format(min(log_min)))
 plt.grid(True)
 plt.show()
-
