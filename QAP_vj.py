@@ -101,6 +101,9 @@ for iter_ in range(ITERS):
     fitness = np.hstack((old_f, new_f))
     pop = np.vstack((old_pop, new))
 
+    # Second selection
+    pop, fitness = putils.remove_from_pop(pop, fitness, n_surv, func='max')
+
 plt.plot(range(ITERS), log_avg, label='Mean')
 plt.plot(range(ITERS), log_min, label='Best')
 plt.xlabel('Iterations')

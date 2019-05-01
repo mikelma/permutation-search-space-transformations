@@ -7,9 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 PERMU_LENGTH = 20
-POP_SIZE = PERMU_LENGTH*10
+POP_SIZE = PERMU_LENGTH*20
 SURV_RATE = .5
-ITERS = 100
+ITERS = 300
 TIMEOUT = 4*1000
 INSTANCE_NAME = 'tai20b.dat'
 
@@ -46,6 +46,8 @@ for iter_ in range(ITERS):
     #       'mean: ', np.mean(fitness), ' best: ', min(fitness))
     # log_min.append(min(fitness))
     # log_avg.append(np.mean(fitness))
+
+    # print('pop-size: ', pop.shape)
 
     # For later use
     old_pop = pop
@@ -115,6 +117,10 @@ for iter_ in range(ITERS):
     # pop = np.vstack((surv, new))
     fitness = np.hstack((old_f, new_f))
     pop = np.vstack((old_pop, new))
+
+    # Second selection
+    pop, fitness = putils.remove_from_pop(pop, fitness, n_surv, func='max')
+
 
 # Plot results
 plt.plot(range(ITERS), log_avg, label='Mean')
