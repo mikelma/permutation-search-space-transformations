@@ -123,4 +123,19 @@ def transform(pop, func):
     '''
     return np.array(list(map(func, pop)))
 
+def remove_from_pop(pop, fitness, n_del, func='min'):
+    
+    if func == 'min':
+        f = np.argmin
+    elif func == 'max':
+        f = np.argmax
+
+    for i in range(n_del):
+
+        indx = f(fitness)
+        
+        fitness = np.delete(fitness, indx, 0)
+        pop = np.delete(pop, indx, 0)
+    
+    return pop, fitness
 
