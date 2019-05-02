@@ -2,6 +2,7 @@ import numpy as np
 import math
 import random
 import itertools as it
+import matplotlib.pyplot as plt 
 
 # def random_permutation(n):
 #     '''Generate a random permutation of the specified length.
@@ -115,8 +116,8 @@ def transform(pop, func):
     '''Applies a trasformation function to every individual of the population.
     
     Args:
-        pop (ndarray): population matrix.
-        func (function): instance of the transformation function.
+        pop (ndarray): Population matrix.
+        func (function): Instance of the transformation function.
 
     Returns:
         ndarray: Transformated population matrix.
@@ -124,11 +125,30 @@ def transform(pop, func):
     return np.array(list(map(func, pop)))
 
 def remove_from_pop(pop, fitness, n_del, func='min'):
-    
+    '''Deletes a given number of items from the pop and fitness arrays. 
+    The deletion is done removing the lowest or highest fitness valued items.
+
+    Args:
+        pop (ndarray): Population matrix. Matrix must be 2D.
+        fitness (ndarray): Fitness array. Array's shape must be (1, n)
+        n_del (int): Number of items to remove.
+        func (str): Delete maximum or minimum fitness valued items. 
+                    Values must be 'min' or 'max'. 
+    Returns:
+        (ndarray, ndarray): First array is the new population matrix, 
+                            the second is new fitness array.
+
+    Raises:
+        ValueError: If the value of func is neither 'min' nor 'max'. 
+
+    '''
     if func == 'min':
         f = np.argmin
     elif func == 'max':
         f = np.argmax
+    else:
+        raise ValueError("func parameter must be 'min' or 'max'."
+                         + " Please give a valid parameter value.") 
 
     for i in range(n_del):
 
@@ -138,4 +158,23 @@ def remove_from_pop(pop, fitness, n_del, func='min'):
         pop = np.delete(pop, indx, 0)
     
     return pop, fitness
+
+def fancy_matrix_plot(m, title=None):
+    '''Plots a heatmap of the given matrix.
+    
+    Args:
+        m (ndarray): two dimentional numpy array.
+        title (str or None): Title of the graphic. Default: None. 
+    '''
+    plt.matshow(m)
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(m)):
+        for j in range(len(m)):
+           plt.text(j, i, np.around(m[i, j], 1),
+                     ha="center", va="center", color="w")
+
+    if type(title) == str:
+        plt.title(title)
+
+    plt.show()
 
