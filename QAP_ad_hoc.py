@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 PERMU_LENGTH = 20
 POP_SIZE = PERMU_LENGTH*20
 SURV_RATE = .5
-ITERS = 300
+ITERS = 200
 TIMEOUT = 4*1000
 INSTANCE_NAME = 'tai20b.dat'
 
@@ -133,5 +133,4 @@ plt.title('Ad-hoc ' + INSTANCE_NAME
 plt.grid(True)
 plt.show()
 
-from plot import *
-plot_matrix(p)
+putils.fancy_matrix_plot(p, 'Last probability matrix')

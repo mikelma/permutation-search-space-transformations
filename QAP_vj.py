@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 PERMU_LENGTH = 20
 POP_SIZE = PERMU_LENGTH*20
 SURV_RATE = .5
-ITERS = 4 
+ITERS = 200 
 TIMEOUT = 4*1000
 INSTANCE_NAME = 'tai20b.dat'
 
@@ -86,6 +86,7 @@ for iter_ in range(ITERS):
         plt.legend()
         plt.grid(True)
         plt.show()
+        putils.fancy_matrix_plot(p, 'Last probability matrix')
         quit()
 
     # Transform population of vj to permus
@@ -114,5 +115,4 @@ plt.title('Vj ' + INSTANCE_NAME
 plt.grid(True)
 plt.show()
 
-from plot import *
-plot_matrix(p)
+putils.fancy_matrix_plot(p, 'Last probability matrix')
