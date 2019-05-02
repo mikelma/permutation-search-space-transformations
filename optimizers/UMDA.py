@@ -12,21 +12,26 @@ class UMDA():
     def __init__(self):
         pass
 
-    def learn_distribution(self, pop):
+    def learn_distribution(self, pop, shape, dtype=np.int8):
         '''Learn probability distibution based on the given population matrix.
         
         Args:
             pop (ndarray): Population matrix of permutations of size n.
+            shape (tupe): (n, m) the shape of the probability matrix, nxm.
+            dtype (numpy data type): Type of the integers in the probability matrix. 
+                               Default: np.int8.
 
         Returns:
-            ndarray: nxn matrix. 
+            ndarray: nxm matrix. 
         '''
-        n = pop.shape[1]
-        freq = np.empty((n, n), dtype=np.int)        
-        pop = np.hsplit(pop, n)
+        # n = pop.shape[1]
+        n, m = shape
+        freq = np.empty(shape, dtype=dtype)        
+        pop = np.hsplit(pop, m)
+        print('hsplit: \n', pop)
 
         for i in range(n):
-            for j in range(n):
+            for j in range(m):
                 freq[i][j] = np.count_nonzero(pop[j] == i)
 
         return freq
