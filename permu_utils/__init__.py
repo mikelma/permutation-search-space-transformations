@@ -168,8 +168,8 @@ def fancy_matrix_plot(m, title=None):
     '''
     plt.matshow(m)
     # Loop over data dimensions and create text annotations.
-    for i in range(len(m)):
-        for j in range(len(m)):
+    for i in range(m.shape[0]):
+        for j in range(m.shape[1]):
            plt.text(j, i, np.around(m[i, j], 1),
                      ha="center", va="center", color="w")
 
