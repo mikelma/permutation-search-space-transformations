@@ -12,21 +12,25 @@ class UMDA():
     def __init__(self):
         pass
 
-    def learn_distribution(self, pop):
+    def learn_distribution(self, pop, shape, dtype=np.int32):
         '''Learn probability distibution based on the given population matrix.
         
         Args:
             pop (ndarray): Population matrix of permutations of size n.
+            shape (tupe): (n, m) the shape of the probability matrix, nxm.
+            dtype (numpy data type): Type of the integers in the probability matrix. 
+                               Default: np.int32.
 
         Returns:
-            ndarray: nxn matrix. 
+            ndarray: nxm matrix. 
         '''
-        n = pop.shape[1]
-        freq = np.empty((n, n), dtype=np.int)        
-        pop = np.hsplit(pop, n)
+        # n = pop.shape[1]
+        n, m = shape
+        freq = np.empty(shape, dtype=dtype)        
+        pop = np.hsplit(pop, m)
 
         for i in range(n):
-            for j in range(n):
+            for j in range(m):
                 freq[i][j] = np.count_nonzero(pop[j] == i)
 
         return freq
@@ -100,16 +104,16 @@ class UMDA():
     #     return  putils.set2np(samples, size) 
 
     # @profile
-    def sample_population(self, p, n, 
-                          permutation=True,
+    def sample_population(self, p, n_samples, 
+                          permutation,
                           pop=np.array([]),
                           timeout=None):
-        '''Given a probability matrix of size mxm, sample n solutions 
+        '''Given a probability matrix of size nxm, n_samples number of solutions 
         of length m.
 
         Args: 
             p (ndarray): probability matrix.
-            n (int): number of samples.
+            n_samples (int): number of samples.
             permutation (bool): If true, samples are going to be permutations.
                                 Default: True.
             pop (ndarray): Individuals from pop matrix are not going to be 
@@ -124,12 +128,16 @@ class UMDA():
         '''
         samples = set()
         # print('p: ', p) # debug
-        size = p.shape[0] # Size of permutations
-        identity = np.array(range(size))
+        size = p.shape[0] # Size of solutions to sample 
+        if not permutation:
+            size -= 1
+        identity = np.array(range(p.shape[0]))
+
+        # p = p.T
 
         start = datetime.datetime.now()
 
-        while len(samples) < n:
+        while len(samples) < n_samples:
             ## Watch for timeouts
             delta_t = datetime.datetime.now() - start
             if type(timeout) == int and int(delta_t.total_seconds() * 1000) >= timeout:
