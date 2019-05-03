@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 PERMU_LENGTH = 20
 POP_SIZE = PERMU_LENGTH*20
 SURV_RATE = .5
-ITERS = 200 
+ITERS = 2 
 TIMEOUT = 4*1000
 INSTANCE_NAME = 'tai20b.dat'
 
@@ -67,7 +67,7 @@ for iter_ in range(ITERS):
     surv_vj = putils.transform(surv, putils.permu2vj)
 
     # Learn a probability distribution from survivors
-    p = umda.learn_distribution(surv_vj)
+    p = umda.learn_distribution(surv_vj, shape=(PERMU_LENGTH, PERMU_LENGTH-1))
 
     # Sample new solutions
     try:

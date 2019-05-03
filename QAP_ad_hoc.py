@@ -7,9 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 PERMU_LENGTH = 20
-POP_SIZE = PERMU_LENGTH*20
+POP_SIZE = PERMU_LENGTH*30
 SURV_RATE = .5
-ITERS = 200
+ITERS = 400
 TIMEOUT = 4*1000
 INSTANCE_NAME = 'tai20b.dat'
 
@@ -80,14 +80,18 @@ for iter_ in range(ITERS):
     # print('Worsts: '+'\n', worst)
 
     # Learn a probability distribution from survivors
-    p = umda.learn_distribution(surv)
+    p = umda.learn_distribution(surv,
+                                shape=(PERMU_LENGTH, PERMU_LENGTH)) 
 
     # print('\n'+'Probability distribution:')
     # print(p)
     
     # Sample new solutions
     try:
-        new = umda.sample_population(p, n_surv, pop=np.array([]), 
+        new = umda.sample_population(p, 
+                                     n_surv, 
+                                     permutation=True,
+                                     pop=np.array([]), 
                                      timeout=TIMEOUT)
 
     # except TimeoutError as e:
@@ -103,6 +107,7 @@ for iter_ in range(ITERS):
         plt.legend()
         plt.grid(True)
         plt.show()
+        putils.fancy_matrix_plot(p, 'Last probability matrix')
         quit()
 
     # Evaluate the sampled solutions
