@@ -1,4 +1,4 @@
-# Optimum: QAP: 122455319
+# Optimum: 122455319
 
 import problems
 import permu_utils as putils
@@ -35,19 +35,8 @@ fitness = np.empty(POP_SIZE)
 for indx in range(POP_SIZE):
     fitness[indx] = qap.evaluate(pop[indx], dist, flow)
 
-# print('\nInitial pop fitness: ', fitness)
-# print('Initial pop:'+'\n', pop)
-
-
 ### Main loop ###
 for iter_ in range(ITERS):
-
-    # print('iter ', iter_+1, '/', ITERS, 
-    #       'mean: ', np.mean(fitness), ' best: ', min(fitness))
-    # log_min.append(min(fitness))
-    # log_avg.append(np.mean(fitness))
-
-    # print('pop-size: ', pop.shape)
 
     # For later use
     old_pop = pop
@@ -73,19 +62,10 @@ for iter_ in range(ITERS):
     log_min.append(min(surv_f))
     log_avg.append(np.mean(surv_f))
     
-
-    # print('\n'+'Survivor fitness: ', surv_f)
-    # print('Survivors: '+'\n', surv)
-    # print('\n'+'Worst fitness: ', worst_f)
-    # print('Worsts: '+'\n', worst)
-
     # Learn a probability distribution from survivors
     p = umda.learn_distribution(surv,
                                 shape=(PERMU_LENGTH, PERMU_LENGTH)) 
 
-    # print('\n'+'Probability distribution:')
-    # print(p)
-    
     # Sample new solutions
     try:
         new = umda.sample_population(p, 
@@ -115,11 +95,6 @@ for iter_ in range(ITERS):
     for i in range(n_surv):
         new_f[i] = qap.evaluate(new[i], dist, flow)
 
-    # print('New pop: \n', new)
-    # print('New pop fitness: \n', new_f)
-
-    # fitness = np.hstack((surv_f, new_f))
-    # pop = np.vstack((surv, new))
     fitness = np.hstack((old_f, new_f))
     pop = np.vstack((old_pop, new))
 

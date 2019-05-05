@@ -1,4 +1,4 @@
-# Optimum: QAP: 122455319
+# Optimum: 122455319
 
 import problems
 from optimizers import UMDA 
@@ -37,11 +37,6 @@ for indx in range(POP_SIZE):
 
 for iter_ in range(ITERS):
 
-    # print('iter ', iter_+1, '/', ITERS, 
-    #       'mean: ', np.mean(fitness), ' best: ', min(fitness))
-    # log_min.append(min(fitness))
-    # log_avg.append(np.mean(fitness))
-    
     # For later use
     old_pop = pop
     old_f = fitness
@@ -97,8 +92,6 @@ for iter_ in range(ITERS):
     for i in range(n_surv):
         new_f[i] = qap.evaluate(new[i], dist, flow)
 
-    # fitness = np.hstack((surv_f, new_f)) 
-    # pop = np.vstack((surv, new))  
     fitness = np.hstack((old_f, new_f))
     pop = np.vstack((old_pop, new))
 
