@@ -102,8 +102,6 @@ class UMDA():
     #             samples.add(tuple(permu))
 
     #     return  putils.set2np(samples, size) 
-
-    # @profile
     def sample_population(self, p, n_samples, 
                           permutation,
                           pop=np.array([]),
