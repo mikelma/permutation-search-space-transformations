@@ -7,16 +7,10 @@ class InstanceSizeError(Exception):
 
 class QAP():
 
-    def __init__(self, instances_dir='instances/QAP'):
+    def __init__(self):
         """ QAP problem initializer.
-
-        Args:
-            instances_dir (str): Default: 'instances/QAP'. Directory where QAP 
-                                 instaces are located
         """
-        self.instances_dir = instances_dir
-        self.wdir = os.getcwd()
-
+        pass
 
     def load_instance(self, instance_name):
         """Loads saved QAP instance.
@@ -31,9 +25,7 @@ class QAP():
             InstanceSizeError: Error while formatting the string from the instance 
                 to a numpy array. The array has not the desired size.
         """
-        # Change the working dir to where instances are
-        os.chdir(self.instances_dir)
-
+        print(os.getcwd())
         f = open(instance_name, 'r')
         lines = f.readlines()
         f.close()
@@ -76,9 +68,6 @@ class QAP():
         lines = lines[size:]
         
         flow = _format(lines, size)
-
-        # return to the original working dir 
-        os.chdir(self.wdir)
 
         return distances, flow
         
