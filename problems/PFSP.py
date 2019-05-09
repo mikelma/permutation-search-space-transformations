@@ -52,13 +52,15 @@ class PFSP():
 
         return instance
 
-    def evaluate(self, permu, times):
+    def evaluate(self, permu, times, 
+                 makespan=False,
+                 verbose=False):
 
         n_machines = times.shape[0]
 
         b = [0]*n_machines
 
-        dbug = ['']*n_machines
+        tft = 0
 
         for job_i, job in enumerate(permu):
             for machine in range(n_machines):
@@ -74,23 +76,27 @@ class PFSP():
                     pt = b[machine-1] + times[machine][job] 
 
                 elif job_i > 0 and machine > 0:
-                    # pt = max(b[machine-1], b[machine]) + times[machine][job]
-                    pt = max(b[machine-1], times[machine][permu[job_i-1]]) + times[machine][job]
+                    pt = max(b[machine-1], b[machine]) + times[machine][job]
+                    # pt = max(b[machine-1], times[machine][permu[job_i-1]]) + times[machine][job]
 
-                b[machine] += pt
+                b[machine] = pt
 
-                for i in range(n_machines):
-                    if i == machine:
-                        dbug[i] += '*'*times[machine][job]
-                    elif i > machine:
-                        dbug[i] += '-'*times[machine][job]
-                    #dbug[i] += ','
+                if verbose:
+                    print('t: ', times[machine][job], 
+                          ' pt: ', pt,
+                          ' tft: ', tft,
+                          '     b: ', b)
+            if verbose:
+                print('-'*10)
 
-        for e in dbug:
-            print(e)
-
-        # return tft
-        return pt
+            tft += pt
+        
+        if makespan:
+            # MAKESPAN 
+            return pt
+        else:
+            # TOTAL FLOW TIME
+            return tft
 
 if __name__ == '__main__':
 
