@@ -83,7 +83,7 @@ for iter_ in range(ITERS):
         # If time out occurs, plot results
         plt.plot(range(iter_+1), log_avg, label='Mean')
         plt.plot(range(iter_+1), log_min, label='Best')
-        plt.title('Ad-hoc ' + INSTANCE_NAME 
+        plt.title('Vj ' + INSTANCE_NAME 
                   + ' best: {:0.2f}'.format(min(log_min)))
         plt.xlabel('Iterations')
         plt.ylabel('Survivors fitness')
@@ -115,7 +115,7 @@ plt.plot(range(ITERS), log_min, label='Best')
 plt.xlabel('Iterations')
 plt.ylabel('Survivors fitness')
 plt.legend()
-plt.title('Ad-hoc ' + INSTANCE_NAME 
+plt.title('Vj ' + INSTANCE_NAME 
           + ' best: {:0.2f}'.format(min(log_min)))
 plt.grid(True)
 plt.show()
