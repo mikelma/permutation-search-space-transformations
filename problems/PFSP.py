@@ -105,6 +105,8 @@ if __name__ == '__main__':
     instance = pfsp.load_instance('instances/PFSP/test.dat')
     permu = list(range(5)) 
     fitness = pfsp.evaluate(permu,
-                        instance)
+                            instance,
+                            makespan=False, 
+                            verbose=True)
 
     print('* FITNESS: ', fitness)
