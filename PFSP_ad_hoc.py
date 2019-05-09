@@ -11,7 +11,7 @@ POP_SIZE = PERMU_LENGTH*20
 SURV_RATE = .5
 ITERS = 400
 TIMEOUT = 4*1000
-INSTANCE_NAME = 'tai20_5_0.fsp'
+INSTANCE_NAME = 'instances/PFSP/tai20_5_0.fsp'
 MAKESPAN = True
 
 permu_dtype = np.int8

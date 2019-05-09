@@ -5,13 +5,8 @@ class PFSP():
 
     def __init__(self, instances_dir='instances/PFSP'):
         """PFSP problem initializer.
-
-        Args:
-            instances_dir (str): Default: 'instances/PFSP'. Directory where
-                                 the PFSP instaces are located.
         """
-        # Chance current working directory to the file where instances are
-        os.chdir(instances_dir)
+        pass
 
     def load_instance(self, instance_name):
         """Loads saved PFSP instance.
@@ -57,31 +52,53 @@ class PFSP():
 
         return instance
 
-    # def generate_instance(self, instance_name,
-    #                       n_machines, n_jobs, 
-    #                       min_val, max_time):
-    #     """Generates a file containing a PFSP instance.
-    #     The instance matrix is randomly generated with the 
-    #     specified ranges and size. Matrix: machines x jobs. 
+    def evaluate(self, permu, times):
 
-    #     Args:
-    #         instance_name (str): The name of the output file.
-    #         n_machines (int): Number of machines of the instance.
-    #         n_jobs (int): Number of jobs of the instance.
-    #         min_val (float): Lower range of the instance matrix.
-    #         max_val (float): Upper range of the instance matrix.
-    #     """
-    #     instance = np.random.uniform(min_val, max_val,
-    #                                  size=(n_machines, n_jobs))
+        n_machines = times.shape[0]
 
-    # def evaluate():
-    #     pass
+        b = [0]*n_machines
+
+        dbug = ['']*n_machines
+
+        for job_i, job in enumerate(permu):
+            for machine in range(n_machines):
+                
+                if job_i == 0 and machine == 0:
+                    pt = times[machine][job]
+                
+                elif job_i > 0 and machine == 0:
+                    pt = b[machine] + times[machine][job]
+                    # pt = times[machine][permu[job_i-1]] + times[machine][job]
+
+                elif job_i == 0 and machine > 0:
+                    pt = b[machine-1] + times[machine][job] 
+
+                elif job_i > 0 and machine > 0:
+                    # pt = max(b[machine-1], b[machine]) + times[machine][job]
+                    pt = max(b[machine-1], times[machine][permu[job_i-1]]) + times[machine][job]
+
+                b[machine] += pt
+
+                for i in range(n_machines):
+                    if i == machine:
+                        dbug[i] += '*'*times[machine][job]
+                    elif i > machine:
+                        dbug[i] += '-'*times[machine][job]
+                    #dbug[i] += ','
+
+        for e in dbug:
+            print(e)
+
+        # return tft
+        return pt
 
 if __name__ == '__main__':
 
     pfsp = PFSP()
-    help(pfsp)
-    
-    # a = pfsp.load_instance('tai20_5_0.fsp')
-    # print(a)
 
+    instance = pfsp.load_instance('instances/PFSP/test.dat')
+    permu = list(range(5)) 
+    fitness = pfsp.evaluate(permu,
+                        instance)
+
+    print('* FITNESS: ', fitness)
