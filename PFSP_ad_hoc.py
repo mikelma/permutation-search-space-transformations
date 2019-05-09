@@ -7,12 +7,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 PERMU_LENGTH = 20
-POP_SIZE = PERMU_LENGTH*20
+POP_SIZE = PERMU_LENGTH*30
 SURV_RATE = .5
 ITERS = 400
 TIMEOUT = 4*1000
 INSTANCE_NAME = 'instances/PFSP/tai20_5_0.fsp'
-MAKESPAN = True
+MAKESPAN = False
 
 permu_dtype = np.int8
 
