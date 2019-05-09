@@ -1,4 +1,10 @@
-# Optimum: 14033 
+# To import modules from ../
+import os,sys,inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir) 
+
+# Optimum: 122455319
 
 import problems
 import permu_utils as putils
@@ -11,16 +17,15 @@ POP_SIZE = PERMU_LENGTH*30
 SURV_RATE = .5
 ITERS = 400
 TIMEOUT = 4*1000
-INSTANCE_NAME = 'instances/PFSP/tai20_5_0.fsp'
-MAKESPAN = False
+INSTANCE_NAME = 'instances/QAP/tai20b.dat'
 
 permu_dtype = np.int8
 
 # Initialize optimizer and problem
 umda = UMDA()
-pfsp = problems.PFSP()
+qap = problems.QAP()
 
-instance = pfsp.load_instance(INSTANCE_NAME)
+dist, flow = qap.load_instance(INSTANCE_NAME)
 
 # Create population
 pop = putils.random_population(PERMU_LENGTH,
@@ -34,9 +39,7 @@ log_avg = []
 # Evaluate the initial population
 fitness = np.empty(POP_SIZE)
 for indx in range(POP_SIZE):
-    fitness[indx] = pfsp.evaluate(pop[indx], 
-                                  instance,
-                                  makespan=MAKESPAN) 
+    fitness[indx] = qap.evaluate(pop[indx], dist, flow)
 
 ### Main loop ###
 for iter_ in range(ITERS):
@@ -64,7 +67,7 @@ for iter_ in range(ITERS):
           'mean: ', np.mean(surv_f), ' best: ', min(surv_f))
     log_min.append(min(surv_f))
     log_avg.append(np.mean(surv_f))
-
+    
     # Learn a probability distribution from survivors
     p = umda.learn_distribution(surv,
                                 shape=(PERMU_LENGTH, PERMU_LENGTH)) 
@@ -96,9 +99,7 @@ for iter_ in range(ITERS):
     # Evaluate the sampled solutions
     new_f = np.empty(n_surv)
     for i in range(n_surv):
-        new_f[i] = pfsp.evaluate(new[i], 
-                                 instance,
-                                 makespan=MAKESPAN) 
+        new_f[i] = qap.evaluate(new[i], dist, flow)
 
     fitness = np.hstack((old_f, new_f))
     pop = np.vstack((old_pop, new))
