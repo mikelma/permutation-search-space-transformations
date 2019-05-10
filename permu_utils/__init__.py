@@ -178,3 +178,17 @@ def fancy_matrix_plot(m, title=None):
 
     plt.show()
 
+def invert(sigma, dtype):
+    '''Calculate the inverse of the given permutation.
+    Args:
+        sigma (array): The permutation to invert.
+        dtype : Type of the numpy array the function returns.
+    
+    Returns:
+        ndarray: Inverse of the given sigma permutation.
+    '''
+    inv = np.empty(len(sigma), dtype=dtype)
+    for i in range(len(sigma)):
+        inv[sigma[i]] = i
+
+    return inv
