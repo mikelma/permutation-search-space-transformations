@@ -9,7 +9,7 @@ class DBMan():
 
         self.config_f = config_f
         self.config = configparser.ConfigParser()
-    
+
     def create_config(self, config_f=None):
         '''Creates a defaut configuration file. 
         If the path is not specified, it will be created as: config.cfg.
@@ -37,8 +37,7 @@ class DBMan():
             self.config.write(configfile) 
             configfile.close()
 
-    def run(self):
-
+    def _read_config(self):
         # Read config file
         try:
             self.config.read(self.config_f)
@@ -50,17 +49,23 @@ class DBMan():
             print(e)
             quit()
 
+        return self.config
+
+    def run(self):
+        
+        config = self._read_config()
+
         print('[*] Config file read succsessfully.')
 
-        space = self.config['MAIN']['search space']
-        pop_size = int(self.config['MAIN']['population size'])
-        surv_rate = float(self.config['MAIN']['survivor rate'])
-        iterations = int(self.config['MAIN']['iterations'])
-        timeout = int(self.config['MAIN']['timeout'])
+        space = config['MAIN']['search space']
+        pop_size = int(config['MAIN']['population size'])
+        surv_rate = float(config['MAIN']['survivor rate'])
+        iterations = int(config['MAIN']['iterations'])
+        timeout = int(config['MAIN']['timeout'])
 
-        problem = self.config['INSTANCE']['problem']
-        instance_path = self.config['INSTANCE']['path']
-        size = int(self.config['INSTANCE']['size'])
+        problem = config['INSTANCE']['problem']
+        instance_path = config['INSTANCE']['path']
+        size = int(config['INSTANCE']['size'])
 
         assert space in ['vj', 'permutation'], 'Specified search space in '+self.config_f+' is not valid.'
         
@@ -72,7 +77,6 @@ class DBMan():
         else:
             print('Problem ', problem, ' found in ', 
                   self.config_f, ' is not a valid problem name')
-
 if __name__ == '__main__':
 
     dbman = DBMan()
