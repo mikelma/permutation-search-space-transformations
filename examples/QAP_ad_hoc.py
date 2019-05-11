@@ -13,9 +13,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 PERMU_LENGTH = 20
-POP_SIZE = PERMU_LENGTH*30
+POP_SIZE = PERMU_LENGTH*10
 SURV_RATE = .5
-ITERS = 400
+ITERS = 20
 TIMEOUT = 4*1000
 INSTANCE_NAME = 'instances/QAP/tai20b.dat'
 
@@ -71,14 +71,19 @@ for iter_ in range(ITERS):
     # Learn a probability distribution from survivors
     p = umda.learn_distribution(surv,
                                 shape=(PERMU_LENGTH, PERMU_LENGTH)) 
+    def evaluate(permu):
+        return qap.evaluate(permu, dist, flow)   
 
     # Sample new solutions
     try:
-        new = umda.sample_population(p, 
-                                     n_surv, 
-                                     permutation=True,
-                                     pop=np.array([]), 
-                                     timeout=TIMEOUT)
+        new, new_f= umda.sample_population(p, 
+                                           n_surv, 
+                                           pop=pop, 
+                                           fitness=fitness,
+                                           eval_func=evaluate,
+                                           permutation=True,
+                                           check_repeat=True,
+                                           timeout=TIMEOUT)
 
     # except TimeoutError as e:
     except Exception as e:
@@ -96,17 +101,11 @@ for iter_ in range(ITERS):
         putils.fancy_matrix_plot(p, 'Last probability matrix')
         quit()
 
-    # Evaluate the sampled solutions
-    new_f = np.empty(n_surv)
-    for i in range(n_surv):
-        new_f[i] = qap.evaluate(new[i], dist, flow)
-
     fitness = np.hstack((old_f, new_f))
     pop = np.vstack((old_pop, new))
 
     # Second selection
     pop, fitness = putils.remove_from_pop(pop, fitness, n_surv, func='max')
-
 
 # Plot results
 plt.plot(range(ITERS), log_avg, label='Mean')

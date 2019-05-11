@@ -35,41 +35,50 @@ class UMDA():
 
         return freq
 
-    #     return  putils.set2np(samples, size) 
-    def sample_population(self, p, n_samples, 
+    # @profile
+    def sample_population(self, p, 
+                          n_samples, 
                           permutation,
-                          pop=np.array([]),
-                          timeout=None):
+                          pop,
+                          fitness,
+                          eval_func,
+                          check_repeat,
+                          timeout=None,
+                          dtype=np.int8):
         '''Given a probability matrix of size nxm, n_samples number of solutions 
         of length m.
 
         Args: 
             p (ndarray): probability matrix.
-            n_samples (int): number of samples.
-            permutation (bool): If true, samples are going to be permutations.
+            n_samples (int): number of samples.  permutation (bool): If true, samples are going to be permutations.
                                 Default: True.
+            permutation (bool): Set true if the solutions to sample are permutations, else False.
             pop (ndarray): Individuals from pop matrix are not going to be 
-                           repeated in the sampled matrix. Warning, the larger 
-                           the size of pop, sampling will be more time-consuming. 
-                           Default: empty array. 
-            timeout (int or None): Enable timeouti, in milliseconds. Default: None.
+                           repeated in the sampled matrix. 
+            fitness (ndarray): Array of the fitness values of the population given. Its shape must be (1, pop_size).
+            eval_func: Instance of the evaluation function.
+            timeout (int or None): Enable timeout, in milliseconds. Default: None.
+            dtype (numpy type): Data type of the sampled solutions. Default: np.int8
         
         Returns:
-            ndarray: sampled matrix. 
+            tuple(ndarray, ndarray) : sampled solutions matrix and the fitness array of the sampled solutions. 
 
         '''
-        samples = set()
-        # print('p: ', p) # debug
+
         size = p.shape[0] # Size of solutions to sample 
+
         if not permutation:
             size -= 1
+
         identity = np.array(range(p.shape[0]))
 
-        # p = p.T
+        samples = np.empty((n_samples, size), dtype=dtype)
+        samples_f = np.empty(n_samples)
 
         start = datetime.datetime.now()
-
-        while len(samples) < n_samples:
+        
+        n_sampled = 0 # Number of permutations sampled and added to the new pop 
+        while n_sampled < n_samples:
             ## Watch for timeouts
             delta_t = datetime.datetime.now() - start
             if type(timeout) == int and int(delta_t.total_seconds() * 1000) >= timeout:
@@ -102,12 +111,24 @@ class UMDA():
                 else:
                     permu.append(identity[i])
             
-            i = 0 
-            repeated = False
-            while not repeated and i < pop.shape[0]: 
-                repeated = tuple(pop[i]) == permu
-                i += 1
-            if not repeated: 
-                samples.add(tuple(permu))
+            # Evaluate the sampled permu
+            f = eval_func(permu)
 
-        return  putils.set2np(samples, size) 
+            if f not in fitness and check_repeat:
+                i = 0
+                repeated = False
+                while not repeated and i < pop.shape[0]:
+                    repeated = np.all(pop[i] == permu)
+                    i += 1
+
+                if not repeated:
+                    samples[n_sampled] = permu
+                    samples_f[n_sampled] = f
+                    n_sampled += 1
+
+            elif not check_repeat:
+                samples[n_sampled] = permu
+                samples_f[n_sampled] = f
+                n_sampled += 1
+                 
+        return samples, samples_f 
