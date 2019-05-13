@@ -19,23 +19,27 @@ import matplotlib.pyplot as plt
 # 
 #     return permu
 
-def set2np(set_, n):
+def set2np(set_, n, dtype):
     '''Python set type to numpy ndarray matrix.
 
     Args:
         set_ (set): set to convert.
         n (int): lenght of the permutations inside set_.
+        dtype: numpy type.
+
     Returns:
         ndarray
     '''
-    return np.array(list(set_)).reshape((len(set_), n))
+    return np.array(list(set_), dtype=dtype).reshape((len(set_), n))
 
-def random_population(n, size):
+def random_population(n, size, dtype):
     '''Generate a random population of permutations.
 
     Args:
         n (int) : length of the permutations. 
         size (int): size of the population.
+        dtype: numpy type.
+
     Returns:
         ndarray: Poulation of random permutations.
     '''
@@ -49,7 +53,7 @@ def random_population(n, size):
         pset.add(tuple(l))
 
     # return np.array(list(pset)).reshape((size, n))
-    return set2np(pset, n)
+    return set2np(pset, n, dtype=dtype)
 
 def discordancesToPermut(indCode, refer):
     n = len(indCode)
