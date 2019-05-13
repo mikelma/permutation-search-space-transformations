@@ -36,35 +36,35 @@ class UMDA():
         return freq
 
     # @profile
-    def sample_population(self, p, 
-                          n_samples, 
-                          permutation,
+    def sample_population(self, 
+                          p, 
+                          samples,
+                          samples_f,
                           pop,
-                          fitness,
+                          pop_f,
                           eval_func,
+                          permutation,
                           check_repeat,
-                          timeout=None,
-                          dtype=np.int8):
+                          timeout=None):
         '''Given a probability matrix of size nxm, n_samples number of solutions 
         of length m.
 
         Args: 
             p (ndarray): probability matrix.
-            n_samples (int): number of samples.  permutation (bool): If true, samples are going to be permutations.
-                                Default: True.
-            permutation (bool): Set true if the solutions to sample are permutations, else False.
+            samples (ndarray): Matrix where samples are going to be stored.
+            samples_f (ndarray): Array where the fitness values of the sampled solutions are going to be stored.
             pop (ndarray): Individuals from pop matrix are not going to be 
                            repeated in the sampled matrix. 
-            fitness (ndarray): Array of the fitness values of the population given. Its shape must be (1, pop_size).
+            pop_f (ndarray): Fitness array of the given population (pop).
             eval_func: Instance of the evaluation function.
+            permutation (bool): Set true if the solutions to sample are permutations, else False.
+            check_repeat (bool): Check if the sampled solution exists in the population, solutions won't be repeated.. 
             timeout (int or None): Enable timeout, in milliseconds. Default: None.
-            dtype (numpy type): Data type of the sampled solutions. Default: np.int8
         
         Returns:
             tuple(ndarray, ndarray) : sampled solutions matrix and the fitness array of the sampled solutions. 
 
         '''
-
         size = p.shape[0] # Size of solutions to sample 
 
         if not permutation:
@@ -72,13 +72,14 @@ class UMDA():
 
         identity = np.array(range(p.shape[0]))
 
-        samples = np.empty((n_samples, size), dtype=dtype)
-        samples_f = np.empty(n_samples)
+        # samples = np.empty((n_samples, size), dtype=dtype)
+        # samples_f = np.empty(n_samples)
 
         start = datetime.datetime.now()
-        
         n_sampled = 0 # Number of permutations sampled and added to the new pop 
-        while n_sampled < n_samples:
+
+        while n_sampled < samples.shape[0]:
+
             ## Watch for timeouts
             delta_t = datetime.datetime.now() - start
             if type(timeout) == int and int(delta_t.total_seconds() * 1000) >= timeout:
@@ -113,8 +114,10 @@ class UMDA():
             
             # Evaluate the sampled permu
             f = eval_func(permu)
-
-            if f not in fitness and check_repeat:
+            
+            # Add the sampled solution to the population 
+            if f not in pop_f and check_repeat:
+                # Check if the sampled solution exists in the population
                 i = 0
                 repeated = False
                 while not repeated and i < pop.shape[0]:
@@ -127,6 +130,7 @@ class UMDA():
                     n_sampled += 1
 
             elif not check_repeat:
+                # Do not check if the sampled ppulation already exists in pop
                 samples[n_sampled] = permu
                 samples_f[n_sampled] = f
                 n_sampled += 1
