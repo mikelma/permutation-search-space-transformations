@@ -86,6 +86,8 @@ class DBMan():
         timeout = int(config['MAIN']['timeout'])
         permu_dtype = config['MAIN']['permutation dtype']
 
+        max_iterations = iterations
+
         problem_name = config['INSTANCE']['problem']
         instance_path = config['INSTANCE']['path']
         size = int(config['INSTANCE']['size'])
@@ -137,7 +139,7 @@ class DBMan():
                 data = pd.DataFrame.from_dict(log)
                 data.to_csv(db_path+algorithm_id)
 
-                iters = range(len(log['min']))
+                iters = len(log['min'])
 
                 main_log = {
                     'id':algorithm_id,
@@ -151,7 +153,7 @@ class DBMan():
                     'check repeat': check_repeat}
                 
                 try:
-                    csvfile = open('main.csv', 'a')
+                    csvfile = open(db_path+'main.csv', 'a')
                     
                 except:
                     print('The main log was not found in '+db_path+' creating a new one.')
@@ -164,12 +166,11 @@ class DBMan():
                 writer.writerow(main_log)
 
                 csvfile.close()
-                print('Saved!')
 
             if plot:
-                plt.plot(iters, log['min'], label='min')
-                plt.plot(iters, log['max'], label='max')
-                plt.plot(iters, log['median'], label='median')
+                plt.plot(range(iters), log['min'], label='min')
+                plt.plot(range(iters), log['max'], label='max')
+                plt.plot(range(iters), log['median'], label='median')
                 plt.legend()
                 plt.show()
 
