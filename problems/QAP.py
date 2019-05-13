@@ -71,41 +71,6 @@ class QAP():
 
         return distances, flow
         
-
-    # def generate_instance(self, instance_name,
-    #                       min_distance, max_distance,
-    #                       min_flow, max_flow):
-    #     """Generates a file containing a QAP instance.
-    #     The distance and flow matrix are randomly generated
-    #     with the specified ranges. Matrix order: distance, flow.
-
-    #     Args:
-    #         instance_name (str): The name of the output file.
-    #         min_distance (float): Lower range of the distance matrix.
-    #         max_distance (float): Upper range of the distance matrix.
-    #         min_flow (float): Lower range of the flow matrix.
-    #         max_flow (float): Upper range of the flow matrix.
-    #     """
-    #     distance_matrix = np.random.uniform(min_distance, max_distance,
-    #                                         size=(size, size))
-    #     flow_matrix = np.random.uniform(min_flow, max_flow,
-    #                                     size=(size, size))
-
-    #     str_ = str(size) + '\n'
-    #     for i in range(size):
-    #         for j in range(size):
-    #             str_ += str(distance_matrix[i][j]) + ' '
-    #     str_ = str_[:-1]
-    #     str_ += '\n'
-    #     for i in range(size):
-    #         for j in range(size):
-    #             str_ += str(flow_matrix[i][j]) + ' '
-    #     str_ = str_[:-1]
-
-    #     f = open(instance_name, 'w')
-    #     f.write(str_)
-    #     f.close()
-
     def evaluate(self, perm, distance_matrix, flow_matrix):
         """Evaluates the given permutation for the QAP problem.
 
