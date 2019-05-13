@@ -128,7 +128,7 @@ class Algorithm():
                                                                      check_repeat=self.check_repeat,
                                                                      timeout=self.timeout)
                 except:
-                    print('[!] Timeput exceptin occurred. Returning log.')
+                    print('[!] Timeout exception occurred. Returning log.')
                     return log
 
             else:
@@ -143,7 +143,7 @@ class Algorithm():
                                                                         check_repeat=self.check_repeat,
                                                                         timeout=self.timeout)
                 except:
-                    print('[!] Timeput exceptin occurred. Returning log.')
+                    print('[!] Timeout exception occurred. Returning log.')
                     return log
 
 
