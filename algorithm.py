@@ -37,7 +37,7 @@ class Algorithm():
 
         self.umda = UMDA()
 
-
+    # @profile
     def run(self):
 
         # Init loggers
@@ -199,22 +199,9 @@ if __name__ == '__main__':
     CHECK_REPEAT = True
     DTYPE = np.int8
 
-    #INSTANCE_NAME = 'instances/QAP/qap5_01'
-    #SIZE = 5
-    #POP_SIZE = 10
-    #SURV_RATE = .5
-    #ITERS = 6
-    #SPACE = 'permutation'
-    #TIMEOUT = 3*1000
-    #CHECK_REPEAT = True
-    #DTYPE = np.int8
-
     qap = QAP()
 
     dist, flow = qap.load_instance(INSTANCE_NAME)
-
-    # dist = np.random.randint(5, size=(5,5))
-    # flow = np.random.randint(5, size=(5,5))
 
     def evaluate(permu):
         return qap.evaluate(permu, dist, flow)
