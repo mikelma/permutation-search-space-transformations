@@ -37,6 +37,7 @@ class Algorithm():
 
         self.umda = UMDA()
 
+
     def run(self):
 
         # Init loggers
@@ -61,6 +62,12 @@ class Algorithm():
                             self.size),
                             dtype=self.permu_dtype)
         samples_f = np.empty(self.n_surv)
+        
+        # Vj samples matrix
+        if self.space == 'vj':
+            samples_vj = np.empty((self.n_surv,
+                                   self.size-1),
+                                   dtype=self.permu_dtype)
 
         # Evaluate initial population
         for i in range(self.pop_size):
@@ -107,28 +114,41 @@ class Algorithm():
                 p = self.umda.learn_distribution(surv_vj,
                                             shape=(self.size,
                                                    self.size-1))
-
-            # print('\np:\n', p)
-
-            # TODO: Treat timeout erros!!
-
+            
             # Sample new solutions
-            samples, samples_f = self.umda.sample_population(p, 
-                                                   samples,
-                                                   samples_f,
-                                                   pop,
-                                                   pop_f,
-                                                   self.evaluate,
-                                                   permutation=(self.space=='permutation'),
-                                                   check_repeat=self.check_repeat,
-                                                   timeout=self.timeout)
+            if self.space == 'permutation':
+                try:
+                    samples, samples_f = self.umda.sample_population(p, 
+                                                                     samples,
+                                                                     samples_f,
+                                                                     pop,
+                                                                     pop_f,
+                                                                     self.evaluate,
+                                                                     permutation=True,
+                                                                     check_repeat=self.check_repeat,
+                                                                     timeout=self.timeout)
+                except:
+                    print('[!] Timeput exceptin occurred. Returning log.')
+                    return log
 
-            if self.space == 'vj':
+            else:
+                try:
+                    samples_vj, samples_f = self.umda.sample_population(p, 
+                                                                        samples_vj,
+                                                                        samples_f,
+                                                                        pop,
+                                                                        pop_f,
+                                                                        self.evaluate,
+                                                                        permutation=False,
+                                                                        check_repeat=self.check_repeat,
+                                                                        timeout=self.timeout)
+                except:
+                    print('[!] Timeput exceptin occurred. Returning log.')
+                    return log
+
+
                 # Transform sampled vj to permus
-                samples = putils.transform(samples, putils.vj2permu)    
-
-            # print('Samples: \n', samples)
-            # print('\nSamples fitness: \n', samples_f)
+                samples = putils.transform(samples_vj, putils.vj2permu)    
 
             # Ranking, the best fitness valued solutions index
             ranking = np.argsort(pop_f)
@@ -173,7 +193,8 @@ if __name__ == '__main__':
     POP_SIZE = 200
     SURV_RATE = .5
     ITERS = 100
-    SPACE = 'permutation'
+    # SPACE = 'permutation'
+    SPACE = 'vj'
     TIMEOUT = 3*1000
     CHECK_REPEAT = True
     DTYPE = np.int8
@@ -194,7 +215,6 @@ if __name__ == '__main__':
 
     # dist = np.random.randint(5, size=(5,5))
     # flow = np.random.randint(5, size=(5,5))
-
 
     def evaluate(permu):
         return qap.evaluate(permu, dist, flow)
