@@ -1,4 +1,3 @@
-import seaborn as sns
 import glob
 import configparser
 import csv
@@ -10,6 +9,8 @@ import uuid
 import problems
 
 from algorithm import Algorithm
+
+import pandas as pd
 
 class DBMan():
     
@@ -189,7 +190,7 @@ class DBMan():
 
     def plot_main(self):
 
-        import pandas as pd
+        import seaborn as sns
 
         path = input('Please enter the path for the main logger >')
         
