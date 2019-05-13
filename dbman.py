@@ -6,7 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import datetime
 import uuid
-import pandas as pd
 
 import problems
 
@@ -187,6 +186,40 @@ class DBMan():
                                     fieldnames=self.main_log_fields)
             writer.writeheader()
 
+
+    def plot_main(self):
+
+        import pandas as pd
+
+        path = input('Please enter the path for the main logger >')
+        
+        main = pd.read_csv(path+'main.csv')
+
+        ids = list(main['id'])
+        # print(ids)
+
+        frames = []
+        for id_ in ids:
+            data = pd.read_csv(path+id_)
+
+            space = str(list(main.loc[main['id']==id_]['space'])[0])
+            iters = list(range(len(data)))
+
+            data = data.assign(space = space) 
+            data = data.assign(iteration = iters) 
+
+            frames.append(data)
+        
+        results = pd.concat(frames)
+
+        sns.set(style="darkgrid")
+
+        sns.lineplot(x='iteration', y='min',
+             hue="space", 
+             data=results)
+
+        plt.show()
+
 if __name__ == '__main__':
 
     dbman = DBMan()
@@ -194,6 +227,8 @@ if __name__ == '__main__':
     print('[1] Generate config.')
     print('[2] Create main logger.')
     print('[3] Run experiment from config.')
+    print('[4] Plot main results.')
+
     print('\n[0] Exit.') 
 
     sel = int(input('Select an option >'))
@@ -208,6 +243,9 @@ if __name__ == '__main__':
     elif sel == 3:
         if input('[*] Run experiment [Y/n]') != 'n':
             dbman.run_experiment()
+
+    elif sel == 4:
+        dbman.plot_main()
 
     elif sel == 0:
         quit()
