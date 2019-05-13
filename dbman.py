@@ -4,6 +4,9 @@ import configparser
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
+import datetime
+import uuid
+import pandas as pd
 
 import problems
 
@@ -16,6 +19,9 @@ class DBMan():
 
         self.config_f = config_f
         self.config = configparser.ConfigParser()
+
+        self.main_log_fields = ['id', 'date', 'problem name', 'instance','max iterations',
+                                'iterations', 'space', 'pop size', 'check repeat']
 
     def create_config(self, config_f=None):
         '''Creates a defaut configuration file. 
@@ -36,11 +42,16 @@ class DBMan():
             'check repeat':'True',
             'timeout': '3000',
             'permutation dtype': 'int8'}
-        
+
         self.config.add_section('INSTANCE')
         self.config.set('INSTANCE', 'problem', 'QAP')
         self.config.set('INSTANCE', 'path', 'instances/QAP/tai20b.dat')
         self.config.set('INSTANCE', 'size', '20')
+
+        self.config['DATA'] = {
+            'save log': 'True',
+            'plot': 'False',
+            'db path':'db/QAP/'}
 
         with open(config_f, 'w') as configfile:
             self.config.write(configfile) 
@@ -71,7 +82,7 @@ class DBMan():
         pop_size = int(config['MAIN']['population size'])
         surv_rate = float(config['MAIN']['survivor rate'])
         iterations = int(config['MAIN']['iterations'])
-        check_repeat = bool(config['MAIN']['check repeat'])
+        check_repeat = config['MAIN']['check repeat'] == 'True'
         timeout = int(config['MAIN']['timeout'])
         permu_dtype = config['MAIN']['permutation dtype']
 
@@ -79,12 +90,12 @@ class DBMan():
         instance_path = config['INSTANCE']['path']
         size = int(config['INSTANCE']['size'])
 
+        db_path = config['DATA']['db path']
+        save_log = config['DATA']['save log'] == 'True'
+        plot = config['DATA']['plot'] == 'True'
+
         if permu_dtype == 'int8':
             permu_dtype = np.int8
-
-        # import os
-        # print(os.getcwd())
-        # print(instance_path)
 
         if  problem_name == 'QAP':
             problem = problems.QAP() # Init problem
@@ -92,7 +103,6 @@ class DBMan():
 
             def evaluator(permu):
                 return problem.evaluate(permu, dist, flow) 
-
 
         elif problem_name == 'PFSP':
             problem = problems.PFSP() # Init problem
@@ -106,32 +116,97 @@ class DBMan():
             print('Problem ', problem, ' found in ', 
                   self.config_f, ' is not a valid problem name')
 
-        alg = Algorithm(size=size,
-                        pop_size=pop_size,
-                        evaluator=evaluator,
-                        surv_rate=surv_rate,
-                        iters=iterations,
-                        space=space,
-                        timeout=timeout,
-                        check_repeat=check_repeat,
-                        permu_dtype=permu_dtype)
+        for repetition in range(repetitions):
 
-        log = alg.run()
-        
-        iters = range(len(log['min']))
+            algorithm_id = str(uuid.uuid4())
 
-        plt.plot(iters, log['min'], label='min')
-        plt.plot(iters, log['max'], label='max')
-        plt.plot(iters, log['median'], label='median')
-        plt.legend()
+            alg = Algorithm(size=size,
+                            pop_size=pop_size,
+                            evaluator=evaluator,
+                            surv_rate=surv_rate,
+                            iters=iterations,
+                            space=space,
+                            timeout=timeout,
+                            check_repeat=check_repeat,
+                            permu_dtype=permu_dtype)
 
-        plt.show()
+            log = alg.run()
+            
+            if save_log:
+
+                data = pd.DataFrame.from_dict(log)
+                data.to_csv(db_path+algorithm_id)
+
+                iters = range(len(log['min']))
+
+                main_log = {
+                    'id':algorithm_id,
+                    'date': str(datetime.datetime.now()),
+                    'problem name': problem_name,
+                    'instance': instance_path,
+                    'max iterations':iterations,
+                    'iterations': iters,
+                    'space':space,
+                    'pop size': pop_size,
+                    'check repeat': check_repeat}
+                
+                try:
+                    csvfile = open('main.csv', 'a')
+                    
+                except:
+                    print('The main log was not found in '+db_path+' creating a new one.')
+                    self.generate_main_log()
+
+                    csvfile = open(db_path+'main.csv', 'a')
+                
+                writer = csv.DictWriter(csvfile, 
+                                        fieldnames=self.main_log_fields)
+                writer.writerow(main_log)
+
+                csvfile.close()
+                print('Saved!')
+
+            if plot:
+                plt.plot(iters, log['min'], label='min')
+                plt.plot(iters, log['max'], label='max')
+                plt.plot(iters, log['median'], label='median')
+                plt.legend()
+                plt.show()
+
+    def generate_main_log(self):
+        ok = False
+        while not ok:
+            path = input('Please enter the path for the main logger >')
+            path += 'main.csv'
+            if input('Are you sure? [N/y] ') == 'y':
+                ok = True
+
+        with open(path, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, 
+                                    fieldnames=self.main_log_fields)
+            writer.writeheader()
 
 if __name__ == '__main__':
 
     dbman = DBMan()
 
-    if input('[*] Create config? [y/N] ') == 'y':
+    print('[1] Generate config.')
+    print('[2] Create main logger.')
+    print('[3] Run experiment from config.')
+    print('\n[0] Exit.') 
+
+    sel = int(input('Select an option >'))
+    print('')
+    
+    if sel == 1:
         dbman.create_config()
 
-    dbman.run_experiment()
+    elif sel == 2:
+        dbman.generate_main_log()
+
+    elif sel == 3:
+        if input('[*] Run experiment [Y/n]') != 'n':
+            dbman.run_experiment()
+
+    elif sel == 0:
+        quit()
