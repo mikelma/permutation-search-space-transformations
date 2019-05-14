@@ -119,10 +119,10 @@ class Algorithm():
                                                                  permutation= self.space=='permutation',
                                                                  check_repeat=self.check_repeat,
                                                                  timeout=self.timeout)
-                except e as Exception:
-                    print('[!] Timeout exception occurred. Returning log.')
-                    print(e)
-                    return log
+            except Exception as e:
+                print('[!] Timeout exception occurred. Returning log.')
+                print(e)
+                return log
 
             # Ranking, the best fitness valued solutions index
             ranking = np.argsort(pop_f)
