@@ -221,6 +221,19 @@ class DBMan():
 
         plt.show()
 
+    def plot_experiment(self, path):
+
+        data = pd.read_csv(path)
+        iters = list(range(len(data)))
+
+        plt.plot(iters, list(data['max']), label='max')
+        plt.plot(iters, list(data['min']), label='min')
+        plt.plot(iters, list(data['median']), label='median')
+        plt.legend()
+        plt.title('Best result: '+str(min(data['min'])))
+
+        plt.show()
+
 if __name__ == '__main__':
 
     dbman = DBMan()
@@ -229,6 +242,7 @@ if __name__ == '__main__':
     print('[2] Create main logger.')
     print('[3] Run experiment from config.')
     print('[4] Plot main results.')
+    print('[5] Plot experiment result.')
 
     print('\n[0] Exit.') 
 
@@ -247,6 +261,10 @@ if __name__ == '__main__':
 
     elif sel == 4:
         dbman.plot_main()
+
+    elif sel == 5:
+        path = input('[*] Path and name of the experiment to plot >')
+        dbman.plot_experiment(path)
 
     elif sel == 0:
         quit()
