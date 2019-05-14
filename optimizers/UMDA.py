@@ -112,6 +112,10 @@ class UMDA():
                 else:
                     permu.append(identity[i])
             
+            # If Vjs, transform vj to permu
+            if not permutation:
+                permu = putils.vj2permu(np.array(permu))
+
             # Evaluate the sampled permu
             f = eval_func(permu)
             
