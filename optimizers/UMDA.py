@@ -65,12 +65,15 @@ class UMDA():
             tuple(ndarray, ndarray) : sampled solutions matrix and the fitness array of the sampled solutions. 
 
         '''
-        size = p.shape[0] # Size of solutions to sample 
+        size = min(p.shape) # Size of solutions to sample 
 
-        if not permutation:
-            size -= 1
+        # if not permutation:
+        #     size -= 1
 
-        identity = np.array(range(p.shape[0]))
+        print('size: ', size)
+
+        # identity = np.array(range(p.shape[0]))
+        identity = np.array(range(size))
 
         start = datetime.datetime.now()
         n_sampled = 0 # Number of permutations sampled and added to the new pop 
@@ -111,6 +114,7 @@ class UMDA():
             
             # If Vjs, transform vj to permu
             if not permutation:
+                print(len(permu))
                 permu = putils.vj2permu(np.array(permu))
 
             # Evaluate the sampled permu
@@ -145,17 +149,12 @@ class UMDA():
                                pop,
                                pop_f,
                                eval_func,
-                               permutation,
                                check_repeat,
                                timeout=None):
         '''Fast version of the sample_population method.
         '''
-        size = p.shape[0] # Size of solutions to sample 
-
-        if not permutation:
-            size -= 1
-
-        identity = np.array(range(p.shape[0]))
+        size = min(p.shape) # Size of the permutation to sample 
+        permutation = p.shape[0] == p.shape[1] # Define search space
 
         start = datetime.datetime.now()
         n_sampled = 0 # Number of permutations sampled and added to the new pop 
@@ -167,58 +166,74 @@ class UMDA():
             if type(timeout) == int and int(delta_t.total_seconds() * 1000) >= timeout:
                 raise TimeoutError('Error: Timeout passed when sampling new solutions.')
 
-            # Generate permu
-            permu = []
+            # Generate sample
+            sample = []
             for j in range(size): # For each position
+
                 # Probability for elements in the j's position 
+                p_ = p[j]
+
                 if permutation:
-                    p_ = np.delete(p[j], permu, axis=0) 
-                    available = np.delete(identity, permu) 
+                    s_max = 0
+                    for i in range(size): 
+                        if i not in sample:
+                            s_max += p_[i]
                 else:
-                    p_ = p[j]
+                    s_max = sum(p[0])
 
-                if sum(p_) == 0: 
-                    rand = 0 
+                rand = np.random.uniform(0, s_max)
+                ##############################################
+                if rand != 0:
+
+                    s = 0
+                    i = 0
+
+                    while s < rand:
+
+                        if permutation and i not in sample:
+                            s += p_[i]
+
+                        elif not permutation:
+                            s += p_[i]
+
+                        if s < rand:
+                            i += 1
                 else:
-                    rand = np.random.uniform(0, sum(p_))
-
-                i = 0
-                s = 0 # sum
-                while s < rand:
-                    s += p_[i] 
-                    if s < rand:
+                    # print('debuug'*10)
+                    i = 0
+                    while i in sample:
                         i += 1
+                
+                sample.append(i)
+                ##############################################
 
-                if permutation:
-                    permu.append(available[i])
-                else:
-                    permu.append(identity[i])
-            
             # If Vjs, transform vj to permu
             if not permutation:
-                permu = putils.vj2permu(np.array(permu))
+                sample = putils.vj2permu(np.array(sample))
+
 
             # Evaluate the sampled permu
-            f = eval_func(permu)
-            
-            # Add the sampled solution to the population 
-            if f not in pop_f and check_repeat:
+            f = eval_func(sample)
+
+            if f in pop_f and check_repeat:
                 # Check if the sampled solution exists in the population
                 i = 0
                 repeated = False
                 while not repeated and i < pop.shape[0]:
-                    repeated = np.all(pop[i] == permu)
+                    repeated = np.all(pop[i] == sample)
                     i += 1
 
                 if not repeated:
-                    samples[n_sampled] = permu
+                    # Add the sampled solution to the population 
+                    samples[n_sampled] = sample
                     samples_f[n_sampled] = f
                     n_sampled += 1
 
-            elif not check_repeat:
+            # elif not check_repeat:
+            else:
                 # Do not check if the sampled ppulation already exists in pop
-                samples[n_sampled] = permu
+                samples[n_sampled] = sample
                 samples_f[n_sampled] = f
                 n_sampled += 1
-                 
+
         return samples, samples_f 
