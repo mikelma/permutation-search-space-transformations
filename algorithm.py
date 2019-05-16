@@ -67,8 +67,6 @@ class Algorithm():
         for i in range(self.pop_size):
             pop_f[i] = self.evaluate(pop[i])
 
-        # Order from min to max fitness values, index list
-        ranking = np.argsort(pop_f)
 
         ### MAIN LOOP ###
 
@@ -84,6 +82,9 @@ class Algorithm():
                   self.iters, 
                   ' mean: ', log['mean'][-1],
                   ' best: ', log['min'][-1])
+
+            # Order from min to max fitness values, index list
+            ranking = np.argsort(pop_f)
 
             # Select best solutions
             ranking = ranking[:self.n_surv]
@@ -107,22 +108,24 @@ class Algorithm():
                                                    self.size-1))
 
             p = p.T # NOTE: Temporary solution
+            # NOTE: If permutation apply laplace, sum 1 to the probability matrix
+            if self.space == 'permutation':
+                p += 1
             
             # Sample new solutions
-            try:
-                samples, samples_f = self.umda.sample_population(p, 
-                                                                 samples,
-                                                                 samples_f,
-                                                                 pop,
-                                                                 pop_f,
-                                                                 self.evaluate,
-                                                                 permutation= self.space=='permutation',
-                                                                 check_repeat=self.check_repeat,
-                                                                 timeout=self.timeout)
-            except Exception as e:
-                print('[!] Timeout exception occurred. Returning log.')
-                print(e)
-                return log
+            # try:
+            samples, samples_f = self.umda.sample_population_fast(p=p, 
+                                                             samples=samples,
+                                                             samples_f=samples_f,
+                                                             pop=pop,
+                                                             pop_f=pop_f,
+                                                             eval_func=self.evaluate,
+                                                             check_repeat=self.check_repeat,
+                                                             timeout=self.timeout)
+            # except Exception as e:
+            #     print('[!] Timeout exception occurred. Returning log.')
+            #     print(e)
+            #     return log
 
             # Ranking, the best fitness valued solutions index
             ranking = np.argsort(pop_f)
@@ -151,31 +154,45 @@ class Algorithm():
                     stop = True
 
                 i += 1
+        ############################################
+        best = pop[np.argsort(pop_f)[0]]
+        print('Best solution: ', best)
+        if not putils.is_permutation(pop):
+            print('Not permu found in pop!')
+            quit()
+        ############################################
 
         return log
                 
 if __name__ == '__main__':
 
     from problems import QAP
+    from problems import PFSP
     import matplotlib.pyplot as plt
     
     INSTANCE_NAME = 'instances/QAP/tai20b.dat'
+    # INSTANCE_NAME = 'instances/PFSP/tai20_5_0.fsp'
     SIZE = 20
     POP_SIZE = 200
     SURV_RATE = .5
-    ITERS = 100
+    ITERS = 200
     # SPACE = 'permutation'
     SPACE = 'vj'
     TIMEOUT = 3*1000
     CHECK_REPEAT = True
     DTYPE = np.int8
 
-    qap = QAP()
+    problem = QAP()
+    # problem = PFSP()
 
-    dist, flow = qap.load_instance(INSTANCE_NAME)
+    dist, flow = problem.load_instance(INSTANCE_NAME)
+    # instance = problem.load_instance(INSTANCE_NAME)
 
     def evaluate(permu):
-        return qap.evaluate(permu, dist, flow)
+        return problem.evaluate(permu, dist, flow)
+
+    # def evaluate(permu):
+    #     return problem.evaluate(permu, instance)
 
     alg = Algorithm(size=SIZE,
                     pop_size=POP_SIZE,
