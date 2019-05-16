@@ -155,11 +155,11 @@ class Algorithm():
 
                 i += 1
         ############################################
-        best = pop[np.argsort(pop_f)[0]]
-        print('Best solution: ', best)
-        if not putils.is_permutation(pop):
-            print('Not permu found in pop!')
-            quit()
+        # best = pop[np.argsort(pop_f)[0]]
+        # print('Best solution: ', best)
+        # if not putils.is_permutation(pop):
+        #     print('Not permu found in pop!')
+        #     quit()
         ############################################
 
         return log
