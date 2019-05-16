@@ -19,6 +19,32 @@ import matplotlib.pyplot as plt
 # 
 #     return permu
 
+def is_permutation(pop):
+    '''Checks if every solution of the given population is a permutation.
+
+        Args:
+            pop (ndarray) : Population matrix.
+        
+        Returns: 
+            bool: True if every solution of the given population is a permutation.
+    '''
+    is_permu = True
+    i = 0
+    while is_permu and i < pop.shape[0]:
+
+        permu = pop[i]
+        e = 0
+        while is_permu and e < permu.shape[0]:
+            is_permu = len(np.where(permu == e)[0]) == 1
+            # print('e: ', e, ' ', len(np.where(permu == e)[0]))
+            e += 1
+        i += 1
+
+        if not is_permu:
+            print(permu)
+
+    return is_permu
+
 def set2np(set_, n, dtype):
     '''Python set type to numpy ndarray matrix.
 
