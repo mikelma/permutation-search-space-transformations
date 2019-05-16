@@ -197,6 +197,8 @@ class DBMan():
         main = pd.read_csv(path+'main.csv')
 
         ids = list(main['id'])
+
+        instance = list(main['instance'])[0]
         # print(ids)
 
         frames = []
@@ -219,6 +221,7 @@ class DBMan():
              hue="space", 
              data=results)
 
+        plt.title(instance)
         plt.show()
 
     def plot_experiment(self, path):
