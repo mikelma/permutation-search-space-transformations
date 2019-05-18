@@ -16,7 +16,14 @@ class DBMan():
     
     def __init__(self, 
                  config_f='config.cfg'):
+        '''DBMan constructor. 
 
+        Args:
+            config_f (str): Configuration file.
+
+        Returns:
+            DBMan instance.
+        '''
         self.config_f = config_f
         self.config = configparser.ConfigParser()
 
@@ -58,7 +65,11 @@ class DBMan():
             configfile.close()
 
     def _read_config(self):
-        # Read config file
+        '''Reads the configuration file given as a constructor parameter.
+
+        Returns:
+            Configuration file instance.
+        '''
         try:
             self.config.read(self.config_f)
             p = self.config['MAIN']['search space']
