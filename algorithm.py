@@ -16,8 +16,24 @@ class Algorithm():
                  timeout,
                  check_repeat,
                  permu_dtype=np.int8):
-        
-        
+        '''Algortithm constructor.
+            
+        Args:
+            size (int): Size of the problem, length of the permutations.
+            pop_size (int): Number of individuals in the population.
+            evaluator (func): Evaluation function, is given a permutation and 
+                              returns a float of the fitness value.
+            surv_rate (float): number of survivor solutions = pop_size*surv_rate.
+            iters (int): Number of iterations.
+            space (str): Search space. (Ex.: 'permutation', 'vj').
+            timeout (int): Number of milliseconds until timeout error sampling.
+            check_repeat (bool): If true, sampled solutions will be solutions 
+                                 that do not exist in the population.
+            permu_dtype (numpy dtype): Numpy dtype permutations. Ex.: np.int8.
+
+        Returns:
+            Algorithm instance.
+        '''
         assert space in ['permutation', 'vj'], 'Please select a valid search space type.'
 
         self.space = space
@@ -38,7 +54,16 @@ class Algorithm():
         self.umda = UMDA()
 
     # @profile
-    def run(self):
+    def run(self, verbose=True):
+        '''Runs the algorithm with the given parameters in the constructor.
+        Args:
+            verbose (bool): If true, prints mean, min and max fitness of the
+                            current population in the command line in each
+                            iteration.
+        Returns:
+            log (dict): a dictionary with 'min', 'max', 'mean' and 'median' keys,
+                        storing data of each generation.
+        '''
 
         # Init loggers
         log = {'min':[],
@@ -78,10 +103,11 @@ class Algorithm():
             log['mean'].append(np.mean(pop_f))
             log['median'].append(np.median(pop_f))
 
-            print('iter ', iter_+1, '/', 
-                  self.iters, 
-                  ' mean: ', log['mean'][-1],
-                  ' best: ', log['min'][-1])
+            if verbose:
+                print('iter ', iter_+1, '/', 
+                      self.iters, 
+                      ' mean: ', log['mean'][-1],
+                      ' best: ', log['min'][-1])
 
             # Order from min to max fitness values, index list
             ranking = np.argsort(pop_f)
@@ -114,7 +140,7 @@ class Algorithm():
             
             # Sample new solutions
             # try:
-            samples, samples_f = self.umda.sample_population_fast(p=p, 
+            samples, samples_f = self.umda.sample_population(p=p, 
                                                              samples=samples,
                                                              samples_f=samples_f,
                                                              pop=pop,
