@@ -19,11 +19,12 @@ import matplotlib.pyplot as plt
 # 
 #     return permu
 
-def is_permutation(pop):
+def is_permutation(pop, verbose=False):
     '''Checks if every solution of the given population is a permutation.
 
         Args:
             pop (ndarray) : Population matrix.
+            verbose (bool): If true prints the found none permutation solution.
         
         Returns: 
             bool: True if every solution of the given population is a permutation.
@@ -36,12 +37,11 @@ def is_permutation(pop):
         e = 0
         while is_permu and e < permu.shape[0]:
             is_permu = len(np.where(permu == e)[0]) == 1
-            # print('e: ', e, ' ', len(np.where(permu == e)[0]))
             e += 1
         i += 1
 
         if not is_permu:
-            print(permu)
+            print('Found a solution that is not a permutation: ', permu)
 
     return is_permu
 
