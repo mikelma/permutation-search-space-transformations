@@ -12,7 +12,7 @@ class UMDA():
     def __init__(self):
         pass
 
-    def learn_distribution(self, pop, shape, dtype=np.int32):
+    def learn_distribution_old(self, pop, shape, dtype=np.int32):
         '''Learn probability distibution based on the given population matrix.
         
         Args:
@@ -32,6 +32,27 @@ class UMDA():
         for i in range(n):
             for j in range(m):
                 freq[i][j] = np.count_nonzero(pop[j] == i)
+
+        return freq
+
+    def learn_distribution(self, pop, dtype=np.int32):
+        '''Learn probability distibution based on the given population matrix.
+        
+        Args:
+            pop (ndarray): Population matrix of permutations of size n.
+            dtype (numpy data type): Type of the integers in the probability matrix. 
+                               Default: np.int32.
+
+        Returns:
+            ndarray: nxm matrix. 
+        '''
+        n = pop.shape[1]
+        m = np.max(pop) + 1
+        freq = np.zeros(shape=(n, m), dtype=dtype)        
+
+        for i in range(pop.shape[0]):
+            for j in range(pop.shape[1]):
+                freq[j][pop[i][j]] += 1 
 
         return freq
 
@@ -146,17 +167,114 @@ class UMDA():
 
         return samples, samples_f 
 
+    def sample_ad_hoc_laplace(self, p, size, dtype=np.int8):
+        p += 1 # Add one to remove 0 probability values
+        sample = []
+        for j in range(size): # For each position
+
+            # Probability for elements in the j's position 
+            p_ = p[j]
+
+            s_max = 0
+            for i in range(size): 
+                if i not in sample:
+                    s_max += p_[i]
+
+            rand = np.random.uniform(0, s_max)
+
+            s = 0
+            i = 0
+
+            while s < rand:
+
+                if i not in sample:
+                    s += p_[i]
+
+                if s < rand:
+                    i += 1
+            
+            sample.append(i)
+        p -= 1 # Restore p
+        return np.array(sample)
+
+    def sample_no_restriction(self, p, size):
+
+        sample = [] # Generate sample
+        s_max = sum(p[0])
+
+        for j in range(size): # For each position
+
+            # Probability for elements in the j's position 
+            p_ = p[j]
+
+            rand = np.random.uniform(0, s_max)
+            s = 0
+            i = 0
+
+            while s < rand:
+
+                s += p_[i]
+
+                if s < rand:
+                    i += 1
+            
+            sample.append(i)
+
+        return np.array(sample)
+
     def sample_population_v2(self, 
                           p, 
+                          sampling_func,
                           samples,
                           samples_f,
                           pop,
                           pop_f,
                           eval_func,
-                          permutation,
+                          transformation,
                           check_repeat,
                           timeout=None):
         '''New sampling method.
         '''
-        pass
+        size = min(p.shape) # Size of the permutation to sample 
 
+        start = datetime.datetime.now()
+        n_sampled = 0 # Number of permutations sampled and added to the new pop 
+
+        while n_sampled < samples.shape[0]:
+
+            ## Watch for timeouts
+            delta_t = datetime.datetime.now() - start
+            if type(timeout) == int and int(delta_t.total_seconds() * 1000) >= timeout:
+                raise TimeoutError('Error: Timeout passed when sampling new solutions.')
+                
+            sample = sampling_func(p, size=size)
+
+            # If needed transform vj to permu
+            if transformation != None:
+                sample = transformation(sample)
+
+            # Evaluate the sampled permu
+            f = eval_func(sample)
+
+            if f in pop_f and check_repeat:
+                # Check if the sampled solution exists in the population
+                i = 0
+                repeated = False
+                while not repeated and i < pop.shape[0]:
+                    repeated = np.all(pop[i] == sample)
+                    i += 1
+
+                if not repeated:
+                    # Add the sampled solution to the population 
+                    samples[n_sampled] = sample
+                    samples_f[n_sampled] = f
+                    n_sampled += 1
+
+            # elif not check_repeat:
+            else:
+                # Do not check if the sampled ppulation already exists in pop
+                samples[n_sampled] = sample
+                samples_f[n_sampled] = f
+                n_sampled += 1
+
+        return samples, samples_f
