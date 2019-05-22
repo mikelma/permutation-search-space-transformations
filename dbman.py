@@ -7,6 +7,7 @@ import datetime
 import uuid
 
 import problems
+from optimizers import UMDA
 
 from algorithm import Algorithm
 
@@ -28,7 +29,7 @@ class DBMan():
         self.config = configparser.ConfigParser()
 
         self.main_log_fields = ['id', 'date', 'problem name', 'instance','max iterations',
-                                'iterations', 'space', 'pop size', 'check repeat']
+                                'iterations', 'space', 'sampling', 'pop size', 'check repeat']
 
     def create_config(self, config_f=None):
         '''Creates a defaut configuration file. 
@@ -43,6 +44,7 @@ class DBMan():
         self.config['MAIN'] = {
             'repetitions': '1',
             'search space': 'permutation',
+            'sampling': 'ad-hoc-laplace',
             'population size': '200',
             'survivor rate': '0.5',
             'iterations': '400',
@@ -83,6 +85,8 @@ class DBMan():
         return self.config
 
     def run_experiment(self):
+
+        umda = UMDA()
         
         config = self._read_config()
 
@@ -90,6 +94,7 @@ class DBMan():
         
         repetitions = int(config['MAIN']['repetitions'])
         space = config['MAIN']['search space']
+        sampling = config['MAIN']['sampling']
         pop_size = int(config['MAIN']['population size'])
         surv_rate = float(config['MAIN']['survivor rate'])
         iterations = int(config['MAIN']['iterations'])
@@ -106,10 +111,12 @@ class DBMan():
         db_path = config['DATA']['db path']
         save_log = config['DATA']['save log'] == 'True'
         plot = config['DATA']['plot'] == 'True'
-
+        
+        # Dtype
         if permu_dtype == 'int8':
             permu_dtype = np.int8
 
+        # Problem
         if  problem_name == 'QAP':
             problem = problems.QAP() # Init problem
             dist, flow = problem.load_instance(instance_path) # Read instance
@@ -129,6 +136,18 @@ class DBMan():
             print('Problem ', problem, ' found in ', 
                   self.config_f, ' is not a valid problem name')
 
+        # Sampling function
+        if sampling == 'ad-hoc-laplace':
+            sampling_func = umda.sample_ad_hoc_laplace
+
+        elif sampling == 'no-restriction':
+            sampling_func = umda.sample_no_restriction
+
+        else:
+            print('Error! ', sampling_func, ' was not found.')
+            quit()
+
+        # Repetitions loop 
         for repetition in range(repetitions):
 
             algorithm_id = str(uuid.uuid4())
@@ -139,6 +158,7 @@ class DBMan():
                             surv_rate=surv_rate,
                             iters=iterations,
                             space=space,
+                            sampling_func=sampling_func,
                             timeout=timeout,
                             check_repeat=check_repeat,
                             permu_dtype=permu_dtype)
