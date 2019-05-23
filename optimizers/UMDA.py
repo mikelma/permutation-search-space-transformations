@@ -35,19 +35,25 @@ class UMDA():
 
         return freq
 
-    def learn_distribution(self, pop, dtype=np.int32):
+    def learn_distribution(self, pop, size, dtype=np.int32):
         '''Learn probability distibution based on the given population matrix.
         
         Args:
             pop (ndarray): Population matrix of permutations of size n.
+            size (int or tuple): Size of the problem or the shape of the probability matix.
             dtype (numpy data type): Type of the integers in the probability matrix. 
                                Default: np.int32.
 
         Returns:
             ndarray: nxm matrix. 
         '''
-        n = pop.shape[1]
-        m = np.max(pop) + 1
+        # Define probability matrix shape
+        if type(size) == tuple:
+            n, m = size 
+        else:
+            n = pop.shape[1]
+            m = size 
+
         freq = np.zeros(shape=(n, m), dtype=dtype)        
 
         for i in range(pop.shape[0]):
