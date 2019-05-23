@@ -1,16 +1,9 @@
 # Search space transformations in permutation problems
-
-## Available permutation problems
- - QAP
- - PFSP
-
-## Available transformations
- - permutation
- - Vj
-
-## Available sampling methods
- - ad-hoc-laplace
- - no-restriction
+ 
+| Problems | Transformations | Sampling |
+|----------|-----------------|----------|
+| QAP      | permutation     | ad-hoc-laplace |
+| PFSP     | Vj              | no-restiction |
  
 ### Example of use
 **Permutation search space and ad-hoc-laplace sampling:**
