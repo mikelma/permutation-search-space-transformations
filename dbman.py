@@ -116,6 +116,12 @@ class DBMan():
         if permu_dtype == 'int8':
             permu_dtype = np.int8
 
+        elif permu_dtype == 'int16':
+            permu_dtype = np.int16
+
+        elif permu_dtype == 'int32':
+            permu_dtype = np.int32
+
         # Problem
         if  problem_name == 'QAP':
             problem = problems.QAP() # Init problem
@@ -180,6 +186,7 @@ class DBMan():
                     'max iterations':iterations,
                     'iterations': iters,
                     'space':space,
+                    'sampling':sampling,
                     'pop size': pop_size,
                     'check repeat': check_repeat}
                 
