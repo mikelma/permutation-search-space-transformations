@@ -29,7 +29,7 @@ class DBMan():
         self.config = configparser.ConfigParser()
 
         self.main_log_fields = ['id', 'date', 'problem name', 'instance','max iterations',
-                                'iterations', 'space', 'sampling', 'pop size', 'check repeat']
+                                'iterations', 'space', 'sampling', 'pop size', 'check repeat', 'min']
 
     def create_config(self, config_f=None):
         '''Creates a defaut configuration file. 
@@ -188,7 +188,8 @@ class DBMan():
                     'space':space,
                     'sampling':sampling,
                     'pop size': pop_size,
-                    'check repeat': check_repeat}
+                    'check repeat': check_repeat,
+                    'min': log['min'][-1]}
                 
                 try:
                     csvfile = open(db_path+'main.csv', 'a')
