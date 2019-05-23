@@ -1,4 +1,3 @@
-import configparser
 import numpy as np
 import permu_utils as putils
 
@@ -146,9 +145,11 @@ class Algorithm():
                 # Transform survivors
                 surv_transformed = putils.transform(surv, self.permu2space)
 
-                p = self.umda.learn_distribution(surv_transformed)
+                p = self.umda.learn_distribution(surv_transformed, self.size)
             else:
-                p = self.umda.learn_distribution(surv)
+                p = self.umda.learn_distribution(surv, self.size)
+
+            # putils.fancy_matrix_plot(p, title=str(p.shape))
             
             # Sample new solutions
             samples, samples_f = self.umda.sample_population_v2(p=p, 
@@ -209,11 +210,11 @@ if __name__ == '__main__':
     CHECK_REPEAT = True
     DTYPE = np.int8
 
-    SPACE = 'permutation'
-    SAMPLING = umda.sample_ad_hoc_laplace 
+    # SPACE = 'permutation'
+    # SAMPLING = umda.sample_ad_hoc_laplace 
 
-    # SAMPLING = umda.sample_no_restriction
-    # SPACE = 'vj'
+    SAMPLING = umda.sample_no_restriction
+    SPACE = 'vj'
 
     # INSTANCE_NAME = 'instances/QAP/tai20b.dat'
     # problem = QAP()
