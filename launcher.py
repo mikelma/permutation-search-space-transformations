@@ -4,7 +4,7 @@ import argparse
 import numpy as np
 import datetime
 
-import pandas as pd
+# import pandas as pd
 
 from algorithm import Algorithm
 from optimizers import UMDA
@@ -90,13 +90,19 @@ alg = Algorithm(size=size,
 log = alg.run(args.verbose)
 
 # Write experiment data to logger
-# with open(args.out+str(args.id)+'.csv', 'w') as f:  # Just use 'w' mode in 3.x
-#     w = csv.DictWriter(f, log.keys())
-#     w.writeheader()
-#     w.writerow(log)
+with open(args.out+str(args.id)+'.csv', 'w') as f:  # Just use 'w' mode in 3.x
 
-data = pd.DataFrame.from_dict(log)
-data.to_csv(args.out+str(args.id)+'.csv')
+    w = csv.DictWriter(f, log.keys())
+    w.writeheader()
+
+    for i in range(len(log['min'])):
+        w.writerow({'min':log['min'][i],
+                    'max':log['max'][i],
+                    'mean':log['mean'][i],
+                    'median':log['median'][i]})
+
+# data = pd.DataFrame.from_dict(log)
+# data.to_csv(args.out+str(args.id)+'.csv')
 
 # Append to main logger
 main_log = {
