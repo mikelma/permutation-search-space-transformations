@@ -40,7 +40,7 @@ def is_permutation(pop, verbose=False):
             e += 1
         i += 1
 
-        if not is_permu:
+        if not is_permu and verbose:
             print('Found a solution that is not a permutation: ', permu)
 
     return is_permu
