@@ -201,9 +201,44 @@ class UMDA():
             
             sample.append(i)
         p -= 1 # Restore p
-        return np.array(sample)
+        return np.array(sample, dtype=dtype)
 
-    def sample_no_restriction(self, p, size):
+    def sample_ad_hoc_laplace_random(self, p, size, dtype=np.int8):
+
+        p += 1 # Add one to remove 0 probability values
+        sample = [None]*size
+
+        random_order = np.random.permutation(size)
+
+        for j in random_order: # For each position
+
+            # Probability for elements in the j's position 
+            p_ = p[j]
+
+            s_max = 0
+            for i in range(size): 
+                if i not in sample:
+                    s_max += p_[i]
+
+            rand = np.random.uniform(0, s_max)
+
+            s = 0
+            i = 0
+
+            while s < rand:
+
+                if i not in sample:
+                    s += p_[i]
+
+                if s < rand:
+                    i += 1
+            
+            sample[j] = i
+
+        p -= 1 # Restore p
+        return np.array(sample, dtype=dtype)
+
+    def sample_no_restriction(self, p, size, dtype=np.int8):
 
         sample = [] # Generate sample
         s_max = sum(p[0])
@@ -226,7 +261,36 @@ class UMDA():
             
             sample.append(i)
 
-        return np.array(sample)
+        return np.array(sample, dtype=dtype)
+
+    def sample_no_restriction_random(self, p, size, dtype=np.int8):
+
+        s_max = sum(p[0])
+
+        sample = [None]*size
+
+        random_order = np.random.permutation(size)
+
+        for j in random_order: # For each position
+
+            # Probability for elements in the j's position 
+            p_ = p[j]
+
+            rand = np.random.uniform(0, s_max)
+            s = 0
+            i = 0
+
+            while s < rand:
+
+                s += p_[i]
+
+                if s < rand:
+                    i += 1
+            
+            # sample.append(i)
+            sample[j] = i
+
+        return np.array(sample, dtype=dtype)
 
     def sample_population_v2(self, 
                           p, 
