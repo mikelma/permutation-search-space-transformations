@@ -25,7 +25,6 @@ class QAP():
             InstanceSizeError: Error while formatting the string from the instance 
                 to a numpy array. The array has not the desired size.
         """
-        print(os.getcwd())
         f = open(instance_name, 'r')
         lines = f.readlines()
         f.close()
