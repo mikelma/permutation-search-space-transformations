@@ -68,8 +68,14 @@ elif args.dtype == 'int32':
 if args.sampling_func == 'ad-hoc-laplace':
     sampling_func = umda.sample_ad_hoc_laplace
 
+if args.sampling_func == 'ad-hoc-laplace-random':
+    sampling_func = umda.sample_ad_hoc_laplace_random
+
 elif args.sampling_func == 'no-restriction':
     sampling_func = umda.sample_no_restriction
+
+elif args.sampling_func == 'no-restriction-random':
+    sampling_func = umda.sample_no_restriction_random
 
 else:
     print('Error! ', args.sampling_func, ' sampling function was not found.')

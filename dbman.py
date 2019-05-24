@@ -146,8 +146,14 @@ class DBMan():
         if sampling == 'ad-hoc-laplace':
             sampling_func = umda.sample_ad_hoc_laplace
 
+        elif sampling == 'ad-hoc-laplace-random':
+            sampling_func = umda.sample_ad_hoc_laplace_random
+
         elif sampling == 'no-restriction':
             sampling_func = umda.sample_no_restriction
+
+        elif sampling == 'no-restriction-random':
+            sampling_func = umda.sample_no_restriction_random
 
         else:
             print('Error! ', sampling_func, ' was not found.')
@@ -258,6 +264,42 @@ class DBMan():
 
         sns.lineplot(x='iteration', y='min',
              hue="space", 
+             data=results)
+
+        plt.title(instance)
+        plt.show()
+
+    def plot_main_2(self):
+
+        import seaborn as sns
+
+        path = input('Please enter the path for the main logger >')
+        
+        main = pd.read_csv(path+'main.csv')
+
+        ids = list(main['id'])
+
+        instance = list(main['instance'])[0]
+        # print(ids)
+
+        frames = []
+        for id_ in ids:
+            data = pd.read_csv(path+id_)
+
+            sampling = str(list(main.loc[main['id']==id_]['sampling'])[0])
+            iters = list(range(len(data)))
+
+            data = data.assign(sampling = sampling) 
+            data = data.assign(iteration = iters) 
+
+            frames.append(data)
+        
+        results = pd.concat(frames)
+
+        sns.set(style="darkgrid")
+
+        sns.lineplot(x='iteration', y='min',
+             hue="sampling", 
              data=results)
 
         plt.title(instance)

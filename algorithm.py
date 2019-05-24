@@ -210,11 +210,11 @@ if __name__ == '__main__':
     CHECK_REPEAT = True
     DTYPE = np.int8
 
-    # SPACE = 'permutation'
-    # SAMPLING = umda.sample_ad_hoc_laplace 
+    SPACE = 'permutation'
+    SAMPLING = umda.sample_ad_hoc_laplace 
 
-    SAMPLING = umda.sample_no_restriction
-    SPACE = 'vj'
+    # SAMPLING = umda.sample_no_restriction
+    # SPACE = 'vj'
 
     # INSTANCE_NAME = 'instances/QAP/tai20b.dat'
     # problem = QAP()
@@ -249,4 +249,3 @@ if __name__ == '__main__':
     plt.legend()
 
     plt.show()
-
